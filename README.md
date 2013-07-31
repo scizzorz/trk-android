@@ -1,4 +1,4 @@
 trk-android
 ===========
 
-An Android port of scizzorz/trk
+An Android port of [trk](https://github.com/scizzorz/trk).
