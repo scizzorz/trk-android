@@ -1,6 +1,25 @@
-build.xml
-local.properties
-proguard-project.txt
-bin
-gen
+# workflow symlinks
 s
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+build.xml
+proguard-project.txt
+
+# Eclipse project files
+.classpath
+.project
