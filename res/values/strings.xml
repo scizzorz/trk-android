@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Main</string>
+    <string name="app_name">trk</string>
+	<string name="menu_save">Save</string>
+	<string name="menu_edit">Edit</string>
+
+	<color name="white">#FFFFFF</color>
+	<color name="blue">#34B4E3</color>
 </resources>

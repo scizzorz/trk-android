@@ -4,10 +4,18 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Hello World, Main"
-    />
+	<ListView
+		android:id="@+id/task_list"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_marginBottom="10dp"
+		android:layout_marginTop="5dp"
+		android:background="@android:color/transparent"
+		android:cacheColorHint="@android:color/transparent"
+		android:divider="#EEEEEE"
+		android:dividerHeight="1dp"
+		android:paddingLeft="2dp"
+		android:textSize="10dp"
+		android:choiceMode="multipleChoice"
+		/>
 </LinearLayout>
-
