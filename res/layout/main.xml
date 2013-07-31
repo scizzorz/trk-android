@@ -4,18 +4,42 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
+	<RelativeLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		>
+		<EditText
+			android:id="@+id/omnibar"
+			android:layout_width="fill_parent"
+			android:layout_height="40dp"
+			android:layout_margin="8dp"
+			android:layout_toLeftOf="@+id/omnibar_add"
+			android:hint="@string/omnibar_hint"
+			android:inputType="text"
+			/>
+		<ImageButton
+			android:id="@+id/omnibar_add"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:layout_alignParentRight="true"
+			android:layout_margin="8dp"
+			android:src="@drawable/omnibar_add"
+			android:background="@drawable/omnibar_add_bg"
+			style="?android:attr/borderlessButtonStyle"
+			/>
+	</RelativeLayout>
 	<ListView
 		android:id="@+id/task_list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:layout_marginBottom="10dp"
-		android:layout_marginTop="5dp"
+		android:layout_margin="8dp"
 		android:background="@android:color/transparent"
 		android:cacheColorHint="@android:color/transparent"
 		android:divider="#EEEEEE"
-		android:dividerHeight="1dp"
+		android:dividerHeight="2dp"
 		android:paddingLeft="2dp"
-		android:textSize="10dp"
+		android:textSize="8dp"
 		android:choiceMode="multipleChoice"
 		/>
 </LinearLayout>

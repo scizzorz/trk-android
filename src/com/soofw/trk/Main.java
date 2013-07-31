@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.EditText;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 public class Main extends Activity {
 	private Trk app;
 
+	private EditText omnibar;
 	private ListView task_list;
 
     @Override
@@ -25,6 +27,7 @@ public class Main extends Activity {
         setContentView(R.layout.main);
 
 		app = (Trk)getApplicationContext();
+		omnibar = (EditText)findViewById(R.id.omnibar);
 		task_list = (ListView)findViewById(R.id.task_list);
 
 		task_list.setItemsCanFocus(false);
