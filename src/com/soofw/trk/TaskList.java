@@ -79,7 +79,7 @@ public class TaskList {
 		this.generateTagList();
 	}
 	public void remove(int id) {
-		this.mainList.remove(id);
+		this.mainList.remove(this.filterList.get(id));
 		this.generateTagList();
 	}
 
