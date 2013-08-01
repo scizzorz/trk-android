@@ -40,7 +40,13 @@ public class Main extends Activity {
 		task_list.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
-				((ListView)parent).setItemChecked(position, checked);
+				if(checked) {
+					((ListView)parent).setItemChecked(position, false);
+					list.remove(position);
+					list.filter(omnibar.getText().toString());
+					adapter.notifyDataSetChanged();
+					list.write();
+				}
 			}
 		});
 
@@ -65,10 +71,8 @@ public class Main extends Activity {
 
 	public void addItem(View view) {
 		list.add(omnibar.getText().toString());
-
 		adapter.notifyDataSetChanged();
 		omnibar.setText("");
-
 		list.write();
 	}
 }

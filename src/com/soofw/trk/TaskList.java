@@ -67,6 +67,9 @@ public class TaskList {
 	public void add(Task source) {
 		this.mainList.add(source);
 	}
+	public void remove(int id) {
+		this.mainList.remove(id);
+	}
 
 	public void filter(String search) {
 		this.filterList.clear();
