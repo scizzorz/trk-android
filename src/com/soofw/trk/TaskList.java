@@ -89,8 +89,13 @@ public class TaskList {
 			Matcher m = null;
 
 			m = re_tag.matcher(this.mainList.get(i).source);
-			if(m.find() && !this.tagList.contains(m.group(2))) {
-				this.tagList.add(m.group(2));
+			if(m.find()) {
+				char type = m.group(2).charAt(0);
+				String[] subtags = m.group(2).substring(1).split("/");
+				for(int j = 0; j < subtags.length; j++) {
+					if(this.tagList.contains(type + subtags[j])) continue;
+					this.tagList.add(type + subtags[j]);
+				}
 			}
 		}
 		Collections.sort(this.tagList);
