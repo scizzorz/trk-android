@@ -20,15 +20,12 @@ public class TaskList {
 	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
 
 	private File file= null;
-	private ArrayList<Task> mainList = null;
-	private ArrayList<Task> filterList = null;
-	private ArrayList<String> tagList = null;
+	private ArrayList<Task> mainList = new ArrayList<Task>();
+	private ArrayList<Task> filterList = new ArrayList<Task>();
+	private ArrayList<String> tagList = new ArrayList<String>();
 
 	public TaskList(File file) {
 		this.file = file;
-		this.mainList = new ArrayList<Task>();
-		this.filterList = new ArrayList<Task>();
-		this.tagList = new ArrayList<String>();
 	}
 
 	public void read() {

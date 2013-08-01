@@ -15,6 +15,7 @@ public class Task {
 	}
 
 	public boolean contains(String search) {
-		return this.source.toLowerCase().contains(search.toLowerCase());
+		search = search.toLowerCase();
+		return this.source.toLowerCase().contains(search);
 	}
 }

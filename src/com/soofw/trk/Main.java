@@ -50,6 +50,7 @@ public class Main extends Activity {
 		taskAdapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getFilterList());
 		taskView.setAdapter(taskAdapter);
 		taskView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
 				if(checked) {
@@ -86,7 +87,6 @@ public class Main extends Activity {
 	public void filterItems(String search) {
 		list.filter(search);
 		taskAdapter.notifyDataSetChanged();
-		tagAdapter.notifyDataSetChanged();
 	}
 
 	public void addItem(View view) {
