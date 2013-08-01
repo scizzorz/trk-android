@@ -7,12 +7,16 @@ import android.text.TextWatcher;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
+import android.view.inputmethod.EditorInfo;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class Main extends Activity {
 	private Trk app = null;
@@ -58,6 +62,17 @@ public class Main extends Activity {
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		});
+
+		omnibar.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+				if(actionId == EditorInfo.IME_ACTION_SEND) {
+					addItem();
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	public void filterItems(String search) {
@@ -65,7 +80,10 @@ public class Main extends Activity {
 		adapter.notifyDataSetChanged();
 	}
 
-	public void addItem(final View view) {
+	public void addItem(View view) {
+		addItem();
+	}
+	public void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
 			list.add(source);

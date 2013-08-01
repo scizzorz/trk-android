@@ -17,6 +17,7 @@
 			android:layout_toLeftOf="@+id/omnibar_add"
 			android:hint="@string/omnibar_hint"
 			android:inputType="text"
+			android:imeOptions="actionSend"
 			/>
 		<ImageButton
 			android:id="@+id/omnibar_add"
