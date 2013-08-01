@@ -69,10 +69,13 @@ public class Main extends Activity {
 		adapter.notifyDataSetChanged();
 	}
 
-	public void addItem(View view) {
-		list.add(omnibar.getText().toString());
-		adapter.notifyDataSetChanged();
-		omnibar.setText("");
-		list.write();
+	public void addItem(final View view) {
+		String source = omnibar.getText().toString();
+		if(!source.isEmpty()) {
+			list.add(source);
+			adapter.notifyDataSetChanged();
+			omnibar.setText("");
+			list.write();
+		}
 	}
 }
