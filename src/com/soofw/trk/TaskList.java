@@ -89,7 +89,7 @@ public class TaskList {
 			Matcher m = null;
 
 			m = re_tag.matcher(this.mainList.get(i).source);
-			if(m.find()) {
+			while(m.find()) {
 				char type = m.group(2).charAt(0);
 				String[] subtags = m.group(2).substring(1).split("/");
 				for(int j = 0; j < subtags.length; j++) {
