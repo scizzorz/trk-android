@@ -2,6 +2,7 @@ package com.soofw.trk;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.animation.Animation;
@@ -22,9 +23,12 @@ public class Main extends Activity {
 	private Trk app = null;
 
 	private EditText omnibar = null;
-	private ListView task_list = null;
+	private ListView taskView = null;
+	private DrawerLayout drawerLayout = null;
+	private ListView drawer = null;
 
-	private ArrayAdapter<Task> adapter = null;
+	private ArrayAdapter<String> tagAdapter = null;
+	private ArrayAdapter<Task> taskAdapter = null;
 	private TaskList list = null;
 
 	@Override
@@ -34,17 +38,18 @@ public class Main extends Activity {
 
 		app = (Trk)getApplicationContext();
 		omnibar = (EditText)findViewById(R.id.omnibar);
-		task_list = (ListView)findViewById(R.id.task_list);
+		taskView = (ListView)findViewById(R.id.task_view);
+		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+		drawer = (ListView)findViewById(R.id.drawer);
 
-		task_list.setItemsCanFocus(false);
+		taskView.setItemsCanFocus(false);
 
 		list = new TaskList(this.app.listFile);
 		list.read();
 
-		adapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getFilterList());
-
-		task_list.setAdapter(adapter);
-		task_list.setOnItemClickListener(new OnItemClickListener() {
+		taskAdapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getFilterList());
+		taskView.setAdapter(taskAdapter);
+		taskView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
 				if(checked) {
@@ -53,6 +58,9 @@ public class Main extends Activity {
 				}
 			}
 		});
+
+		tagAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, list.getTagList());
+		drawer.setAdapter(tagAdapter);
 
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -77,7 +85,7 @@ public class Main extends Activity {
 
 	public void filterItems(String search) {
 		list.filter(search);
-		adapter.notifyDataSetChanged();
+		taskAdapter.notifyDataSetChanged();
 	}
 
 	public void addItem(View view) {
@@ -87,7 +95,7 @@ public class Main extends Activity {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
 			list.add(source);
-			adapter.notifyDataSetChanged();
+			taskAdapter.notifyDataSetChanged();
 			omnibar.setText("");
 			list.write();
 		}
@@ -100,7 +108,7 @@ public class Main extends Activity {
 			public void onAnimationEnd(Animation arg) {
 				list.remove(index);
 				list.filter(omnibar.getText().toString());
-				adapter.notifyDataSetChanged();
+				taskAdapter.notifyDataSetChanged();
 				list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}

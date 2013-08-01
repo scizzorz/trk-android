@@ -14,11 +14,20 @@ public class TaskList {
 	public File file= null;
 	public ArrayList<Task> mainList = null;
 	public ArrayList<Task> filterList = null;
+	public ArrayList<String> tagList = null;
 
 	public TaskList(File file) {
 		this.file = file;
 		this.mainList = new ArrayList<Task>();
 		this.filterList = new ArrayList<Task>();
+		this.tagList = new ArrayList<String>();
+
+		this.tagList.add("+project");
+		this.tagList.add("+project/sub");
+		this.tagList.add("@context");
+		this.tagList.add("@context/sub");
+		this.tagList.add("#tag");
+		this.tagList.add("#tag/sub");
 	}
 
 	public void read() {
@@ -85,5 +94,9 @@ public class TaskList {
 	}
 	public ArrayList<Task> getFilterList() {
 		return this.filterList;
+	}
+
+	public ArrayList<String> getTagList() {
+		return this.tagList;
 	}
 }

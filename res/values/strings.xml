@@ -3,6 +3,17 @@
     <string name="app_name">trk</string>
 	<string name="omnibar_hint">Search or add...</string>
 
-	<color name="white">#FFFFFF</color>
-	<color name="blue">#34B4E3</color>
+	<color name="omnibar_add_focus">#34B4E3</color>
+
+	<color name="list_bg">#FFF</color>
+	<color name="list_item_color">#111</color>
+	<color name="list_item_bg">#FFF</color>
+	<color name="list_item_bg_focus">#34B4E3</color>
+	<color name="list_item_divider">#EEE</color>
+
+	<color name="drawer_bg">#222</color>
+	<color name="drawer_item_color">#EEE</color>
+	<color name="drawer_item_bg">#333</color>
+	<color name="drawer_item_bg_focus">#444</color>
+	<color name="drawer_divider">#222</color>
 </resources>
