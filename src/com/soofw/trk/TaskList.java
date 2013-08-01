@@ -94,7 +94,6 @@ public class TaskList {
 			}
 		}
 		Collections.sort(this.tagList);
-		this.tagList.add(0, "None");
 	}
 
 	public void addTagFilter(String tag) {
@@ -116,13 +115,19 @@ public class TaskList {
 	public void filter(String search) {
 		this.filterList.clear();
 		for(int i = 0; i < this.mainList.size(); i++) {
-			if(this.mainList.get(i).contains(search)) {
-				if(this.tagFilters.size() == 0) {
-					this.filterList.add(this.mainList.get(i));
-				} else if(this.mainList.get(i).matches(this.tagFilters.get(0))) {
-					this.filterList.add(this.mainList.get(i));
+			if(!this.mainList.get(i).contains(search)) continue;
+			if(this.tagFilters.size() > 0) {
+				boolean add = false;
+				for(int j = 0; j < this.tagFilters.size(); j++) {
+					if(this.mainList.get(i).matches(this.tagFilters.get(j))) {
+						add = true;
+						break;
+					}
 				}
+				if(!add) continue;
 			}
+
+			this.filterList.add(this.mainList.get(i));
 		}
 	}
 

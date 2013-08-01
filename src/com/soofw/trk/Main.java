@@ -67,11 +67,12 @@ public class Main extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
 				String text = ((TextView)view).getText().toString();
-				if(text.equals("None")) {
-					list.clearTagFilter();
+				if(checked) {
+					list.addTagFilter(text);
 				} else {
-					list.setTagFilter(text);
+					list.removeTagFilter(text);
 				}
+
 				filterItems(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
 			}
