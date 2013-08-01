@@ -86,6 +86,7 @@ public class Main extends Activity {
 	public void filterItems(String search) {
 		list.filter(search);
 		taskAdapter.notifyDataSetChanged();
+		tagAdapter.notifyDataSetChanged();
 	}
 
 	public void addItem(View view) {
@@ -96,6 +97,7 @@ public class Main extends Activity {
 		if(!source.isEmpty()) {
 			list.add(source);
 			taskAdapter.notifyDataSetChanged();
+			tagAdapter.notifyDataSetChanged();
 			omnibar.setText("");
 			list.write();
 		}
@@ -109,6 +111,7 @@ public class Main extends Activity {
 				list.remove(index);
 				list.filter(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
+				tagAdapter.notifyDataSetChanged();
 				list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}

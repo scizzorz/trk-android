@@ -9,25 +9,26 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TaskList {
-	public File file= null;
-	public ArrayList<Task> mainList = null;
-	public ArrayList<Task> filterList = null;
-	public ArrayList<String> tagList = null;
+	final private static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
+	final private static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
+	final private static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
+	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
+
+	private File file= null;
+	private ArrayList<Task> mainList = null;
+	private ArrayList<Task> filterList = null;
+	private ArrayList<String> tagList = null;
 
 	public TaskList(File file) {
 		this.file = file;
 		this.mainList = new ArrayList<Task>();
 		this.filterList = new ArrayList<Task>();
 		this.tagList = new ArrayList<String>();
-
-		this.tagList.add("+project");
-		this.tagList.add("+project/sub");
-		this.tagList.add("@context");
-		this.tagList.add("@context/sub");
-		this.tagList.add("#tag");
-		this.tagList.add("#tag/sub");
 	}
 
 	public void read() {
@@ -42,6 +43,7 @@ public class TaskList {
 				this.mainList.add(new Task(line));
 			}
 			this.filterList.addAll(this.mainList);
+			this.generateTagList();
 
 			reader.close();
 		} catch(FileNotFoundException e) {
@@ -72,12 +74,28 @@ public class TaskList {
 
 	public void add(String source) {
 		this.mainList.add(new Task(source));
+		this.generateTagList();
 	}
 	public void add(Task source) {
 		this.mainList.add(source);
+		this.generateTagList();
 	}
 	public void remove(int id) {
 		this.mainList.remove(id);
+		this.generateTagList();
+	}
+
+	public void generateTagList() {
+		this.tagList.clear();
+		for(int i = 0; i < this.mainList.size(); i++) {
+			Matcher m = null;
+
+			m = re_tag.matcher(this.mainList.get(i).source);
+			if(m.find()) {
+				this.tagList.add(m.group(2));
+			}
+		}
+		Collections.sort(this.tagList);
 	}
 
 	public void filter(String search) {
