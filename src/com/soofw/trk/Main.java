@@ -2,6 +2,8 @@ package com.soofw.trk;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -32,7 +34,7 @@ public class Main extends Activity {
 		list = new TaskList(this.app.listFile);
 		list.read();
 
-		adapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getArrayList());
+		adapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getFilterList());
 
 		task_list.setAdapter(adapter);
 		task_list.setOnItemClickListener(new OnItemClickListener() {
@@ -41,6 +43,24 @@ public class Main extends Activity {
 				((ListView)parent).setItemChecked(position, checked);
 			}
 		});
+
+		omnibar.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				filterItems(s.toString());
+			}
+		});
+	}
+
+	public void filterItems(String search) {
+		list.filter(search);
+		adapter.notifyDataSetChanged();
 	}
 
 	public void addItem(View view) {

@@ -12,11 +12,13 @@ import java.util.ArrayList;
 
 public class TaskList {
 	public File file= null;
-	public ArrayList<Task> list = null;
+	public ArrayList<Task> mainList = null;
+	public ArrayList<Task> filterList = null;
 
 	public TaskList(File file) {
 		this.file = file;
-		this.list = new ArrayList<Task>();
+		this.mainList = new ArrayList<Task>();
+		this.filterList = new ArrayList<Task>();
 	}
 
 	public void read() {
@@ -28,8 +30,9 @@ public class TaskList {
 				line = reader.readLine();
 				if(line == null) break;
 
-				this.list.add(new Task(line));
+				this.mainList.add(new Task(line));
 			}
+			this.filterList.addAll(this.mainList);
 
 			reader.close();
 		} catch(FileNotFoundException e) {
@@ -46,8 +49,8 @@ public class TaskList {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(this.file));
 
 			// FIXME sort
-			for(int i = 0; i < this.list.size(); i++) {
-				writer.write(this.list.get(i).source + "\n");
+			for(int i = 0; i < this.mainList.size(); i++) {
+				writer.write(this.mainList.get(i).source + "\n");
 			}
 
 			writer.flush();
@@ -59,13 +62,25 @@ public class TaskList {
 	}
 
 	public void add(String source) {
-		this.list.add(new Task(source));
+		this.mainList.add(new Task(source));
 	}
 	public void add(Task source) {
-		this.list.add(source);
+		this.mainList.add(source);
 	}
 
-	public ArrayList<Task> getArrayList() {
-		return this.list;
+	public void filter(String search) {
+		this.filterList.clear();
+		for(int i = 0; i < this.mainList.size(); i++) {
+			if(this.mainList.get(i).contains(search)) {
+				this.filterList.add(this.mainList.get(i));
+			}
+		}
+	}
+
+	public ArrayList<Task> getMainList() {
+		return this.mainList;
+	}
+	public ArrayList<Task> getFilterList() {
+		return this.filterList;
 	}
 }
