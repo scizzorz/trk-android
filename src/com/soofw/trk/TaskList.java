@@ -91,7 +91,7 @@ public class TaskList {
 			Matcher m = null;
 
 			m = re_tag.matcher(this.mainList.get(i).source);
-			if(m.find()) {
+			if(m.find() && !this.tagList.contains(m.group(2))) {
 				this.tagList.add(m.group(2));
 			}
 		}
