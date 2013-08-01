@@ -1,6 +1,7 @@
 package com.soofw.trk;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -10,14 +11,18 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import java.util.ArrayList;
 
 public class Main extends Activity {
 	private Trk app = null;
@@ -27,7 +32,7 @@ public class Main extends Activity {
 	private DrawerLayout drawerLayout = null;
 	private ListView drawer = null;
 
-	private ArrayAdapter<String> tagAdapter = null;
+	private TagAdapter tagAdapter = null;
 	private ArrayAdapter<Task> taskAdapter = null;
 	private TaskList list = null;
 
@@ -60,7 +65,7 @@ public class Main extends Activity {
 			}
 		});
 
-		tagAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, list.getTagList());
+		tagAdapter = new TagAdapter(this, list.getTagList());
 		drawer.setAdapter(tagAdapter);
 		drawer.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -163,5 +168,30 @@ public class Main extends Activity {
 		}
 		anim.setDuration(200);
 		view.startAnimation(anim);
+	}
+
+
+	private class TagAdapter extends ArrayAdapter<String> {
+		public View view;
+
+		public TagAdapter(Context context, ArrayList<String> tags) {
+			super(context, R.layout.drawer_list_item, tags);
+		}
+
+		@Override
+		public View getView(int pos, View convertView, ViewGroup parent) {
+			this.view = convertView;
+			if(this.view == null) {
+				LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				this.view = inflater.inflate(R.layout.drawer_list_item, null);
+			}
+
+			String tag = this.getItem(pos);
+			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
+			text.setText(tag);
+			((ListView)parent).setItemChecked(pos, Main.this.list.hasTagFilter(tag));
+
+			return view;
+		}
 	}
 }

@@ -115,9 +115,8 @@ public class TaskList {
 			this.tagFilters.remove(tag);
 		}
 	}
-	public void setTagFilter(String tag) {
-		this.tagFilters.clear();
-		this.tagFilters.add(tag);
+	public boolean hasTagFilter(String tag) {
+		return this.tagFilters.contains(tag);
 	}
 	public void clearTagFilter() {
 		this.tagFilters.clear();
