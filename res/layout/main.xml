@@ -26,6 +26,7 @@
 			android:layout_margin="8dp"
 			android:src="@drawable/omnibar_add"
 			android:background="@drawable/omnibar_add_bg"
+			android:onClick="addItem"
 			style="?android:attr/borderlessButtonStyle"
 			/>
 	</RelativeLayout>
