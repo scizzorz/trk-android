@@ -62,6 +62,21 @@ public class Main extends Activity {
 
 		tagAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, list.getTagList());
 		drawer.setAdapter(tagAdapter);
+		drawer.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				boolean checked = ((ListView)parent).isItemChecked(position);
+				String text = ((TextView)view).getText().toString();
+				if(text.equals("None")) {
+					list.clearTagFilter();
+				} else {
+					list.setTagFilter(text);
+				}
+				filterItems(omnibar.getText().toString());
+				taskAdapter.notifyDataSetChanged();
+			}
+		});
+
 
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override

@@ -56,7 +56,7 @@
 	<ListView
 		android:id="@+id/drawer"
 		android:background="@color/drawer_bg"
-		android:choiceMode="multipleChoice"
+		android:choiceMode="singleChoice"
 		android:divider="@color/drawer_divider"
 		android:dividerHeight="4dp"
 		android:layout_gravity="start"

@@ -23,6 +23,7 @@ public class TaskList {
 	private ArrayList<Task> mainList = new ArrayList<Task>();
 	private ArrayList<Task> filterList = new ArrayList<Task>();
 	private ArrayList<String> tagList = new ArrayList<String>();
+	private ArrayList<String> tagFilters = new ArrayList<String>();
 
 	public TaskList(File file) {
 		this.file = file;
@@ -93,13 +94,34 @@ public class TaskList {
 			}
 		}
 		Collections.sort(this.tagList);
+		this.tagList.add(0, "None");
+	}
+
+	public void addTagFilter(String tag) {
+		this.tagFilters.add(tag);
+	}
+	public void removeTagFilter(String tag) {
+		if(this.tagFilters.contains(tag)) {
+			this.tagFilters.remove(tag);
+		}
+	}
+	public void setTagFilter(String tag) {
+		this.tagFilters.clear();
+		this.tagFilters.add(tag);
+	}
+	public void clearTagFilter() {
+		this.tagFilters.clear();
 	}
 
 	public void filter(String search) {
 		this.filterList.clear();
 		for(int i = 0; i < this.mainList.size(); i++) {
 			if(this.mainList.get(i).contains(search)) {
-				this.filterList.add(this.mainList.get(i));
+				if(this.tagFilters.size() == 0) {
+					this.filterList.add(this.mainList.get(i));
+				} else if(this.mainList.get(i).matches(this.tagFilters.get(0))) {
+					this.filterList.add(this.mainList.get(i));
+				}
 			}
 		}
 	}
