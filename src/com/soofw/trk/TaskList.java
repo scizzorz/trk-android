@@ -81,6 +81,12 @@ public class TaskList {
 	public void remove(int id) {
 		this.mainList.remove(this.filterList.get(id));
 		this.generateTagList();
+		for(int i = 0; i < this.tagFilters.size(); i++) {
+			if(!this.tagList.contains(this.tagFilters.get(i))) {
+				this.tagFilters.remove(i);
+				i--;
+			}
+		}
 	}
 
 	public void generateTagList() {
