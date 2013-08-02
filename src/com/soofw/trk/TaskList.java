@@ -14,11 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TaskList {
-	final private static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
-	final private static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
-	final private static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
-	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
-
 	private File file= null;
 	private ArrayList<Task> mainList = new ArrayList<Task>();
 	private ArrayList<Task> filterList = new ArrayList<Task>();
@@ -59,7 +54,7 @@ public class TaskList {
 
 			// FIXME sort
 			for(int i = 0; i < this.mainList.size(); i++) {
-				writer.write(this.mainList.get(i).source + "\n");
+				writer.write(this.mainList.get(i).getSource() + "\n");
 			}
 
 			writer.flush();
@@ -92,15 +87,13 @@ public class TaskList {
 	public void generateTagList() {
 		this.tagList.clear();
 		for(int i = 0; i < this.mainList.size(); i++) {
-			Matcher m = null;
-
-			m = re_tag.matcher(this.mainList.get(i).source);
-			while(m.find()) {
-				char type = m.group(2).charAt(0);
-				String[] subtags = m.group(2).substring(1).split("/");
-				for(int j = 0; j < subtags.length; j++) {
-					if(this.tagList.contains(type + subtags[j])) continue;
-					this.tagList.add(type + subtags[j]);
+			String[] tags = this.mainList.get(i).getTags();
+			for(int j = 0; j < tags.length; j++) {
+				char type = tags[j].charAt(0);
+				String[] subtags = tags[j].substring(1).split("/");
+				for(int k = 0; k < subtags.length; k++) {
+					if(this.tagList.contains(type + subtags[k])) continue;
+					this.tagList.add(type + subtags[k]);
 				}
 			}
 		}
