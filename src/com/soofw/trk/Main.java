@@ -19,6 +19,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -179,15 +180,52 @@ public class Main extends Activity {
 
 		@Override
 		public View getView(int pos, View convertView, ViewGroup parent) {
+			LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			this.view = convertView;
 			if(this.view == null) {
-				LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				this.view = inflater.inflate(R.layout.list_item, null);
 			}
 
-			String label = this.getItem(pos).toString();
+			Task temp = this.getItem(pos);
+			String label = temp.toString();
+			String[] tags = temp.getTags();
+
+			LinearLayout tags_layout = (LinearLayout)view.findViewById(R.id.tags);
 			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
+
 			text.setText(label);
+			if(tags.length == 0) {
+				tags_layout.setVisibility(View.GONE);
+			} else {
+				tags_layout.setVisibility(View.VISIBLE);
+				for(int i = 0; i < tags.length || i < tags_layout.getChildCount(); i++) {
+					if(i < tags.length) {
+						TextView tag;
+						if(i < tags_layout.getChildCount()) {
+							tag = (TextView)(tags_layout.getChildAt(i));
+							tag.setVisibility(View.VISIBLE);
+						} else {
+							tag = (TextView)inflater.inflate(R.layout.tag_item, tags_layout, false);
+							tags_layout.addView(tag);
+						}
+						switch(tags[i].charAt(0)) {
+							case '+':
+								tag.setBackgroundColor(getResources().getColor(R.color.plus_color_bg));
+								break;
+							case '@':
+								tag.setBackgroundColor(getResources().getColor(R.color.at_color_bg));
+								break;
+							case '#':
+								tag.setBackgroundColor(getResources().getColor(R.color.hash_color_bg));
+								break;
+						}
+						tag.setText(tags[i].substring(1));
+					} else {
+						tags_layout.getChildAt(i).setVisibility(View.GONE);
+					}
+				}
+			}
+
 
 			return view;
 		}
