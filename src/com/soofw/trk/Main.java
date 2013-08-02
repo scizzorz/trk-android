@@ -189,6 +189,17 @@ public class Main extends Activity {
 			String tag = this.getItem(pos);
 			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
 			text.setText(tag);
+			switch(tag.charAt(0)) {
+				case '+':
+					text.setTextColor(getResources().getColor(R.color.plus_color_fg));
+					break;
+				case '@':
+					text.setTextColor(getResources().getColor(R.color.at_color_fg));
+					break;
+				case '#':
+					text.setTextColor(getResources().getColor(R.color.hash_color_fg));
+					break;
+			}
 			((ListView)parent).setItemChecked(pos, Main.this.list.hasTagFilter(tag));
 
 			return view;
