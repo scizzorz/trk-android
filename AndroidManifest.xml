@@ -11,7 +11,7 @@
 		android:name="Trk"
 		android:label="@string/app_name"
 		android:icon="@drawable/ic_launcher"
-		android:theme="@android:style/Theme.Holo.Light"
+		android:theme="@android:style/Theme.Holo.Light.NoActionBar"
 		>
 		<activity
 			android:name="Main"
