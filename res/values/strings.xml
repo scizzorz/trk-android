@@ -4,8 +4,11 @@
 	<string name="omnibar_hint">Search or add...</string>
 
 	<color name="plus_color_fg">#eb9947</color>
+	<color name="plus_color_bg">#efbf8f</color>
 	<color name="at_color_fg">#99eb47</color>
+	<color name="at_color_bg">#bfef8f</color>
 	<color name="hash_color_fg">#47eb99</color>
+	<color name="hash_color_bg">#8fefbf</color>
 
 	<color name="omnibar_add_focus">#34B4E3</color>
 

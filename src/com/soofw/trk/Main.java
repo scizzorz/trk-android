@@ -33,7 +33,7 @@ public class Main extends Activity {
 	private ListView drawer = null;
 
 	private TagAdapter tagAdapter = null;
-	private ArrayAdapter<Task> taskAdapter = null;
+	private TaskAdapter taskAdapter = null;
 	private TaskList list = null;
 
 	@Override
@@ -52,7 +52,7 @@ public class Main extends Activity {
 		list = new TaskList(this.app.listFile);
 		list.read();
 
-		taskAdapter = new ArrayAdapter<Task>(this, R.layout.list_item, list.getFilterList());
+		taskAdapter = new TaskAdapter(this, list.getFilterList());
 		taskView.setAdapter(taskAdapter);
 		taskView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -170,6 +170,28 @@ public class Main extends Activity {
 		view.startAnimation(anim);
 	}
 
+	private class TaskAdapter extends ArrayAdapter<Task> {
+		public View view;
+
+		public TaskAdapter(Context context, ArrayList<Task> tasks) {
+			super(context, R.layout.list_item, tasks);
+		}
+
+		@Override
+		public View getView(int pos, View convertView, ViewGroup parent) {
+			this.view = convertView;
+			if(this.view == null) {
+				LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				this.view = inflater.inflate(R.layout.list_item, null);
+			}
+
+			String label = this.getItem(pos).toString();
+			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
+			text.setText(label);
+
+			return view;
+		}
+	}
 
 	private class TagAdapter extends ArrayAdapter<String> {
 		public View view;
