@@ -18,7 +18,7 @@ public class Task {
 
 	public Task(String source) {
 		this.source = source.trim();
-		this.pretty = this.source;
+		this.pretty = source.replaceAll(re_tag.pattern(), "").replaceAll("\\s+", " ").trim();
 
 		Matcher m = re_tag.matcher(this.source);
 		while(m.find()) {
