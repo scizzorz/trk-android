@@ -150,7 +150,7 @@ public class Main extends Activity {
 			@Override
 			protected void applyTransformation(float interpolatedTime, Transformation t) {
 				if(interpolatedTime == 1) {
-					view.getLayoutParams().height = initialHeight;
+					view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 					view.requestLayout();
 				} else {
 					view.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
