@@ -1,6 +1,7 @@
 package com.soofw.trk;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,21 +11,22 @@ public class Task implements Comparable<Task> {
 	final static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
 	final static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
 	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
-	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2,4}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
 
 	String source = null;
 	String pretty = null;
+	String sortVal = null;
 	int priority = 0;
-	int date = 0;
+	Calendar calendar = Calendar.getInstance();
 	ArrayList<String> tags = new ArrayList<String>();
 
 	public Task(String source) {
 		this.source = source.trim();
 		this.pretty = this.source;
 
-		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_date.pattern(), "");
-		this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
+		this.sortVal = this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
+		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
@@ -40,19 +42,36 @@ public class Task implements Comparable<Task> {
 			this.tags.add(m.group(2));
 		}
 
+		m = re_date.matcher(this.source);
+		if(m.find()) {
+			this.calendar.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1);
+			this.calendar.set(Calendar.DATE, Integer.parseInt(m.group(3)));
+
+			if(m.group(5) != null) {
+				this.calendar.set(Calendar.YEAR, Integer.parseInt(m.group(5)) + 2000);
+			}
+
+			if(m.group(7) != null) {
+				this.calendar.set(Calendar.HOUR, Integer.parseInt(m.group(7)));
+			} else {
+				this.calendar.set(Calendar.HOUR, 11);
+			}
+			if(m.group(9) != null) {
+				this.calendar.set(Calendar.MINUTE, Integer.parseInt(m.group(9)));
+			} else {
+				this.calendar.set(Calendar.MINUTE, 59);
+			}
+			if(m.group(10) != null) {
+				this.calendar.set(Calendar.AM_PM, m.group(10).toLowerCase().equals("pm") ? Calendar.PM : Calendar.AM);
+			} else {
+				this.calendar.set(Calendar.AM_PM, Calendar.PM);
+			}
+		} else {
+			this.calendar.setTimeInMillis(0);
+		}
+
 		this.addTags(re_date.matcher(this.source), 0);
 		this.addTags(re_tag.matcher(this.source), 2);
-	}
-
-	private void addTags(Matcher m, int group) {
-		while(m.find()) {
-			this.tags.add(m.group(group));
-		}
-	}
-
-	@Override
-	public int compareTo(Task other) {
-		return other.priority - this.priority;
 	}
 
 	@Override
@@ -60,6 +79,24 @@ public class Task implements Comparable<Task> {
 		return this.pretty;
 	}
 
+	@Override
+	public int compareTo(Task other) {
+		if(this.priority != other.priority) {
+			return other.priority - this.priority;
+		}
+
+		if(!this.calendar.equals(other.calendar)) {
+			return other.calendar.compareTo(this.calendar);
+		}
+
+		return this.sortVal.compareTo(other.sortVal);
+	}
+
+	private void addTags(Matcher m, int group) {
+		while(m.find()) {
+			this.tags.add(m.group(group));
+		}
+	}
 	public String[] getTags() {
 		String[] temp = new String[this.tags.size()];
 		this.tags.toArray(temp);
