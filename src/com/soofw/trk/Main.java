@@ -1,7 +1,6 @@
 package com.soofw.trk;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -11,19 +10,14 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import java.util.ArrayList;
 
 public class Main extends Activity {
 	private Trk app = null;
@@ -50,8 +44,8 @@ public class Main extends Activity {
 
 		taskView.setItemsCanFocus(false);
 
-		list = new TaskList(this.app.listFile);
-		list.read();
+		this.list = new TaskList(this.app.listFile);
+		this.list.read();
 
 		taskAdapter = new TaskAdapter(this, list.getFilterList());
 		taskView.setAdapter(taskAdapter);
@@ -66,7 +60,7 @@ public class Main extends Activity {
 			}
 		});
 
-		tagAdapter = new TagAdapter(this, list.getTagList());
+		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
 		drawer.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -169,126 +163,5 @@ public class Main extends Activity {
 		}
 		anim.setDuration(200);
 		view.startAnimation(anim);
-	}
-
-	private class TaskAdapter extends ArrayAdapter<Task> {
-		public View view;
-
-		public TaskAdapter(Context context, ArrayList<Task> tasks) {
-			super(context, R.layout.list_item, tasks);
-		}
-
-		@Override
-		public View getView(int pos, View convertView, ViewGroup parent) {
-			LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			this.view = convertView;
-			if(this.view == null) {
-				this.view = inflater.inflate(R.layout.list_item, null);
-			}
-
-			Task temp = this.getItem(pos);
-			String label = temp.toString();
-			String[] tags = temp.getTags();
-
-			LinearLayout tags_layout = (LinearLayout)view.findViewById(R.id.tags);
-			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
-
-			text.setText(label);
-			if(tags.length == 0) {
-				tags_layout.setVisibility(View.GONE);
-			} else {
-				tags_layout.setVisibility(View.VISIBLE);
-				for(int i = 0; i < tags.length || i < tags_layout.getChildCount(); i++) {
-					if(i < tags.length) {
-						TextView tag;
-						if(i < tags_layout.getChildCount()) {
-							tag = (TextView)(tags_layout.getChildAt(i));
-							tag.setVisibility(View.VISIBLE);
-						} else {
-							tag = (TextView)inflater.inflate(R.layout.tag_item, tags_layout, false);
-							tags_layout.addView(tag);
-						}
-
-						tag.setText(tags[i].substring(1));
-						int bg_id = 0;
-						switch(tags[i].charAt(0)) {
-							case '+':
-								bg_id = R.color.plus_bg;
-								break;
-							case '@':
-								bg_id = R.color.at_bg;
-								break;
-							case '#':
-								bg_id = R.color.hash_bg;
-								break;
-							case '!':
-								if(tags[i].equals("!0")) {
-									bg_id = R.color.lowpriority_bg;
-								} else {
-									bg_id = R.color.priority_bg;
-								}
-								break;
-							default:
-								bg_id = R.color.date_bg;
-								tag.setText(tags[i]);
-						}
-
-						tag.setBackgroundColor(getResources().getColor(bg_id));
-					} else {
-						tags_layout.getChildAt(i).setVisibility(View.GONE);
-					}
-				}
-			}
-
-
-			return view;
-		}
-	}
-
-	private class TagAdapter extends ArrayAdapter<String> {
-		public View view;
-
-		public TagAdapter(Context context, ArrayList<String> tags) {
-			super(context, R.layout.drawer_list_item, tags);
-		}
-
-		@Override
-		public View getView(int pos, View convertView, ViewGroup parent) {
-			this.view = convertView;
-			if(this.view == null) {
-				LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				this.view = inflater.inflate(R.layout.drawer_list_item, null);
-			}
-
-			String tag = this.getItem(pos);
-			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
-			text.setText(tag);
-
-			int fg_id = 0;
-			switch(tag.charAt(0)) {
-				case '+':
-					fg_id = R.color.plus_fg;
-					break;
-				case '@':
-					fg_id = R.color.at_fg;
-					break;
-				case '#':
-					fg_id = R.color.hash_fg;
-					break;
-				case '!':
-					if(tag.equals("!0")) {
-						fg_id = R.color.lowpriority_fg;
-					} else {
-						fg_id = R.color.priority_fg;
-					}
-					break;
-				default:
-					fg_id = R.color.date_fg;
-			}
-			((ListView)parent).setItemChecked(pos, Main.this.list.hasTagFilter(tag));
-			text.setTextColor(getResources().getColor(fg_id));
-
-			return view;
-		}
 	}
 }
