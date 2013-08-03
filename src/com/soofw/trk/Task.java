@@ -10,6 +10,8 @@ public class Task {
 	final private static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
 	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
 	final private static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
+	final private static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2,4}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+
 
 	private String source = null;
 	private String pretty = null;
@@ -22,17 +24,19 @@ public class Task {
 		this.pretty = this.source;
 
 		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
+		this.pretty = this.pretty.replaceAll(re_date.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
-		this.addTags(re_priority.matcher(this.source));
-		this.addTags(re_tag.matcher(this.source));
+		this.addTags(re_priority.matcher(this.source), 2);
+		this.addTags(re_date.matcher(this.source), 0);
+		this.addTags(re_tag.matcher(this.source), 2);
 	}
 
-	private void addTags(Matcher m) {
+	private void addTags(Matcher m, int group) {
 		while(m.find()) {
-			this.tags.add(m.group(2));
+			this.tags.add(m.group(group));
 		}
 	}
 
@@ -71,6 +75,8 @@ public class Task {
 			case '@':
 				regex = "(^.*|\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s|\\/|.*$)";
 				break;
+			default:
+				return this.contains(tag);
 		}
 
 		return Pattern.matches(regex, this.source.toLowerCase());

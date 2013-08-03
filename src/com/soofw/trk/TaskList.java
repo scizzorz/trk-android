@@ -90,10 +90,20 @@ public class TaskList {
 			String[] tags = this.mainList.get(i).getTags();
 			for(int j = 0; j < tags.length; j++) {
 				char type = tags[j].charAt(0);
-				String[] subtags = tags[j].substring(1).split("/");
-				for(int k = 0; k < subtags.length; k++) {
-					if(this.tagList.contains(type + subtags[k])) continue;
-					this.tagList.add(type + subtags[k]);
+				switch(type) {
+					case '+':
+					case '@':
+					case '#':
+					case '!':
+						String[] subtags = tags[j].substring(1).split("/");
+						for(int k = 0; k < subtags.length; k++) {
+							if(this.tagList.contains(type + subtags[k])) continue;
+							this.tagList.add(type + subtags[k]);
+						}
+						break;
+					default:
+						if(this.tagList.contains(tags[j])) continue;
+						this.tagList.add(tags[j]);
 				}
 			}
 		}

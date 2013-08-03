@@ -13,6 +13,8 @@
 	<color name="priority_bg">#ef8f8f</color>
 	<color name="lowpriority_fg">#999999</color>
 	<color name="lowpriority_bg">#bfbfbf</color>
+	<color name="date_fg">#4799eb</color>
+	<color name="date_bg">#8fbfef</color>
 
 	<color name="omnibar_add_focus">#34B4E3</color>
 

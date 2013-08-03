@@ -209,6 +209,7 @@ public class Main extends Activity {
 							tags_layout.addView(tag);
 						}
 
+						tag.setText(tags[i].substring(1));
 						int bg_id = 0;
 						switch(tags[i].charAt(0)) {
 							case '+':
@@ -227,9 +228,11 @@ public class Main extends Activity {
 									bg_id = R.color.priority_bg;
 								}
 								break;
+							default:
+								bg_id = R.color.date_bg;
+								tag.setText(tags[i]);
 						}
 
-						tag.setText(tags[i].substring(1));
 						tag.setBackgroundColor(getResources().getColor(bg_id));
 					} else {
 						tags_layout.getChildAt(i).setVisibility(View.GONE);
@@ -279,7 +282,8 @@ public class Main extends Activity {
 						fg_id = R.color.priority_fg;
 					}
 					break;
-
+				default:
+					fg_id = R.color.date_fg;
 			}
 			((ListView)parent).setItemChecked(pos, Main.this.list.hasTagFilter(tag));
 			text.setTextColor(getResources().getColor(fg_id));
