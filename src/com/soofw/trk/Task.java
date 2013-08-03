@@ -9,6 +9,7 @@ public class Task {
 	final private static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
 	final private static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
 	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
+	final private static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
 
 	private String source = null;
 	private String pretty = null;
@@ -18,9 +19,18 @@ public class Task {
 
 	public Task(String source) {
 		this.source = source.trim();
-		this.pretty = source.replaceAll(re_tag.pattern(), "").replaceAll("\\s+", " ").trim();
+		this.pretty = this.source;
 
-		Matcher m = re_tag.matcher(this.source);
+		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
+		this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
+		this.pretty = this.pretty.replaceAll("\\s+", " ");
+		this.pretty = this.pretty.trim();
+
+		this.addTags(re_priority.matcher(this.source));
+		this.addTags(re_tag.matcher(this.source));
+	}
+
+	private void addTags(Matcher m) {
 		while(m.find()) {
 			this.tags.add(m.group(2));
 		}
@@ -50,8 +60,18 @@ public class Task {
 		tag = tag.toLowerCase();
 		char type = tag.charAt(0);
 		String content = tag.substring(1);
+		String regex = null;
 
-		String regex = "(^.*|\\s)(\\" + type + "([\\w\\/]*)(" + content + ")(\\s|\\/|.*$))";
+		switch(type) {
+			case '!':
+				regex = "(^.*|\\s)(\\!" + content + ")(\\s|.*$)";
+				break;
+			case '+':
+			case '#':
+			case '@':
+				regex = "(^.*|\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s|\\/|.*$)";
+				break;
+		}
 
 		return Pattern.matches(regex, this.source.toLowerCase());
 	}

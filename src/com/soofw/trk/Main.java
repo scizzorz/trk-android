@@ -208,18 +208,29 @@ public class Main extends Activity {
 							tag = (TextView)inflater.inflate(R.layout.tag_item, tags_layout, false);
 							tags_layout.addView(tag);
 						}
+
+						int bg_id = 0;
 						switch(tags[i].charAt(0)) {
 							case '+':
-								tag.setBackgroundColor(getResources().getColor(R.color.plus_color_bg));
+								bg_id = R.color.plus_bg;
 								break;
 							case '@':
-								tag.setBackgroundColor(getResources().getColor(R.color.at_color_bg));
+								bg_id = R.color.at_bg;
 								break;
 							case '#':
-								tag.setBackgroundColor(getResources().getColor(R.color.hash_color_bg));
+								bg_id = R.color.hash_bg;
+								break;
+							case '!':
+								if(tags[i].equals("!0")) {
+									bg_id = R.color.lowpriority_bg;
+								} else {
+									bg_id = R.color.priority_bg;
+								}
 								break;
 						}
+
 						tag.setText(tags[i].substring(1));
+						tag.setBackgroundColor(getResources().getColor(bg_id));
 					} else {
 						tags_layout.getChildAt(i).setVisibility(View.GONE);
 					}
@@ -249,18 +260,29 @@ public class Main extends Activity {
 			String tag = this.getItem(pos);
 			CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
 			text.setText(tag);
+
+			int fg_id = 0;
 			switch(tag.charAt(0)) {
 				case '+':
-					text.setTextColor(getResources().getColor(R.color.plus_color_fg));
+					fg_id = R.color.plus_fg;
 					break;
 				case '@':
-					text.setTextColor(getResources().getColor(R.color.at_color_fg));
+					fg_id = R.color.at_fg;
 					break;
 				case '#':
-					text.setTextColor(getResources().getColor(R.color.hash_color_fg));
+					fg_id = R.color.hash_fg;
 					break;
+				case '!':
+					if(tag.equals("!0")) {
+						fg_id = R.color.lowpriority_fg;
+					} else {
+						fg_id = R.color.priority_fg;
+					}
+					break;
+
 			}
 			((ListView)parent).setItemChecked(pos, Main.this.list.hasTagFilter(tag));
+			text.setTextColor(getResources().getColor(fg_id));
 
 			return view;
 		}
