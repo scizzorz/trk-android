@@ -67,10 +67,14 @@ public class Task implements Comparable<Task> {
 	}
 
 	public boolean contains(String search) {
-		search = search.toLowerCase();
-		return this.source.toLowerCase().contains(search);
+		String[] words = search.toLowerCase().split(" ");
+		for(int i = 0; i < words.length; i++) {
+			if(!this.source.toLowerCase().contains(words[i])) {
+				return false;
+			}
+		}
+		return true;
 	}
-
 	public boolean matches(String tag) {
 		tag = tag.toLowerCase();
 		char type = tag.charAt(0);
