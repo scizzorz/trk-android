@@ -4,20 +4,19 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Task {
-	final private static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
-	final private static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
-	final private static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
-	final private static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
-	final private static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
-	final private static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2,4}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+public class Task implements Comparable<Task> {
+	final static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
+	final static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
+	final static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
+	final static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
+	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
+	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2,4}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
 
-
-	private String source = null;
-	private String pretty = null;
-	private int priority = 0;
-	private int due = 0;
-	private ArrayList<String> tags = new ArrayList<String>();
+	String source = null;
+	String pretty = null;
+	int priority = 0;
+	int date = 0;
+	ArrayList<String> tags = new ArrayList<String>();
 
 	public Task(String source) {
 		this.source = source.trim();
@@ -29,7 +28,18 @@ public class Task {
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
-		this.addTags(re_priority.matcher(this.source), 2);
+		Matcher m;
+
+		// find the priority
+		m = re_priority.matcher(this.source);
+		if(m.find()) {
+			this.priority = Integer.parseInt(m.group(2).substring(1));
+			if(this.priority == 0) { // !0 is actually -1 priority
+				this.priority  = -1;
+			}
+			this.tags.add(m.group(2));
+		}
+
 		this.addTags(re_date.matcher(this.source), 0);
 		this.addTags(re_tag.matcher(this.source), 2);
 	}
@@ -41,12 +51,13 @@ public class Task {
 	}
 
 	@Override
-	public String toString() {
-		return this.pretty;
+	public int compareTo(Task other) {
+		return other.priority - this.priority;
 	}
 
-	public String getSource() {
-		return this.source;
+	@Override
+	public String toString() {
+		return this.pretty;
 	}
 
 	public String[] getTags() {

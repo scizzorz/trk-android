@@ -14,11 +14,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TaskList {
-	private File file= null;
-	private ArrayList<Task> mainList = new ArrayList<Task>();
-	private ArrayList<Task> filterList = new ArrayList<Task>();
-	private ArrayList<String> tagList = new ArrayList<String>();
-	private ArrayList<String> tagFilters = new ArrayList<String>();
+	String lastFilter = "";
+	File file = null;
+	ArrayList<Task> mainList = new ArrayList<Task>();
+	ArrayList<Task> filterList = new ArrayList<Task>();
+	ArrayList<String> tagList = new ArrayList<String>();
+	ArrayList<String> tagFilters = new ArrayList<String>();
 
 	public TaskList(File file) {
 		this.file = file;
@@ -35,6 +36,7 @@ public class TaskList {
 
 				this.mainList.add(new Task(line));
 			}
+			Collections.sort(this.mainList);
 			this.filterList.addAll(this.mainList);
 			this.generateTagList();
 
@@ -54,7 +56,7 @@ public class TaskList {
 
 			// FIXME sort
 			for(int i = 0; i < this.mainList.size(); i++) {
-				writer.write(this.mainList.get(i).getSource() + "\n");
+				writer.write(this.mainList.get(i).source + "\n");
 			}
 
 			writer.flush();
@@ -67,14 +69,20 @@ public class TaskList {
 
 	public void add(String source) {
 		this.mainList.add(new Task(source));
+		Collections.sort(this.mainList);
+
 		this.generateTagList();
 	}
 	public void add(Task source) {
 		this.mainList.add(source);
+		Collections.sort(this.mainList);
+
 		this.generateTagList();
 	}
 	public void remove(int id) {
 		this.mainList.remove(this.filterList.get(id));
+		Collections.sort(this.mainList);
+
 		this.generateTagList();
 		for(int i = 0; i < this.tagFilters.size(); i++) {
 			if(!this.tagList.contains(this.tagFilters.get(i))) {
@@ -126,6 +134,7 @@ public class TaskList {
 	}
 
 	public void filter(String search) {
+		this.lastFilter = search;
 		this.filterList.clear();
 		for(int i = 0; i < this.mainList.size(); i++) {
 			if(!this.mainList.get(i).contains(search)) continue;
@@ -142,6 +151,9 @@ public class TaskList {
 
 			this.filterList.add(this.mainList.get(i));
 		}
+	}
+	public void filter() {
+		this.filter(this.lastFilter);
 	}
 
 	public ArrayList<Task> getMainList() {
