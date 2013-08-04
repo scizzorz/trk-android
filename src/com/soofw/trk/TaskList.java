@@ -72,20 +72,32 @@ public class TaskList {
 
 	public void add(String source) {
 		this.mainList.add(new Task(source));
-		Collections.sort(this.mainList);
 
+		Collections.sort(this.mainList);
 		this.generateTagList();
 	}
 	public void add(Task source) {
 		this.mainList.add(source);
-		Collections.sort(this.mainList);
 
+		Collections.sort(this.mainList);
+		this.generateTagList();
+	}
+	public void set(int id, String source) {
+		this.mainList.set(id, new Task(source));
+
+		Collections.sort(this.mainList);
+		this.generateTagList();
+	}
+	public void set(int id, Task source) {
+		this.mainList.set(id, source);
+
+		Collections.sort(this.mainList);
 		this.generateTagList();
 	}
 	public void remove(int id) {
 		this.mainList.remove(this.filterList.get(id));
-		Collections.sort(this.mainList);
 
+		Collections.sort(this.mainList);
 		this.generateTagList();
 		for(int i = 0; i < this.tagFilters.size(); i++) {
 			if(!this.tagList.contains(this.tagFilters.get(i))) {
@@ -93,6 +105,9 @@ public class TaskList {
 				i--;
 			}
 		}
+	}
+	public Task get(int id) {
+		return this.mainList.get(id);
 	}
 
 	public void generateTagList() {

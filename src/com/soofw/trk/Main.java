@@ -22,17 +22,17 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class Main extends FragmentActivity {
-	private Trk app = null;
+	Trk app = null;
 
-	private DrawerLayout drawerLayout = null;
-	private ListView drawer = null;
-	private ListView taskView = null;
-	private MultiAutoCompleteTextView omnibar = null;
+	DrawerLayout drawerLayout = null;
+	ListView drawer = null;
+	ListView taskView = null;
+	MultiAutoCompleteTextView omnibar = null;
 
-	private ArrayAdapter<String> autoCompleteAdapter = null;
-	private TagAdapter tagAdapter = null;
-	private TaskAdapter taskAdapter = null;
-	private TaskList list = null;
+	ArrayAdapter<String> autoCompleteAdapter = null;
+	TagAdapter tagAdapter = null;
+	TaskAdapter taskAdapter = null;
+	TaskList list = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -66,7 +66,7 @@ public class Main extends FragmentActivity {
 		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment().show(Main.this.getSupportFragmentManager(), "tag?");
+				new ActionDialogFragment(list, position).show(Main.this.getSupportFragmentManager(), "tag?");
 				return true;
 			}
 		});
@@ -135,6 +135,22 @@ public class Main extends FragmentActivity {
 			omnibar.setAdapter(autoCompleteAdapter);
 
 			omnibar.setText("");
+			list.write();
+		}
+	}
+
+	public void editItem(int index, String newSource) {
+		if(!newSource.isEmpty()) {
+			list.set(index, newSource);
+			list.filter();
+			taskAdapter.notifyDataSetChanged();
+			tagAdapter.notifyDataSetChanged();
+
+			// apparently autoCompleteAdapter.notifyDataSetChanged()
+			// won't update a MultiAutoCompleteTextView list
+			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
+			omnibar.setAdapter(autoCompleteAdapter);
+
 			list.write();
 		}
 	}

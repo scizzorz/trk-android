@@ -12,6 +12,14 @@ import android.support.v4.app.DialogFragment;
 public class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
 
+	TaskList list;
+	int id;
+
+	public ActionDialogFragment(TaskList list, int id) {
+		this.list = list;
+		this.id = id;
+	}
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		String[] actions = new String[2];
@@ -23,7 +31,7 @@ public class ActionDialogFragment extends DialogFragment {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(which == ActionDialogFragment.EDIT) {
-					new EditDialogFragment().show(ActionDialogFragment.this.getActivity().getSupportFragmentManager(), "tag!");
+					new EditDialogFragment(list, id).show(ActionDialogFragment.this.getActivity().getSupportFragmentManager(), "tag!");
 				}
 			}
 		});
