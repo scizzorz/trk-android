@@ -17,7 +17,7 @@ public class Task implements Comparable<Task> {
 	String pretty = null;
 	String sortVal = null;
 	int priority = 0;
-	Calendar calendar = Calendar.getInstance();
+	Calendar calendar = null;
 	ArrayList<String> tags = new ArrayList<String>();
 
 	public Task(String source) {
@@ -30,10 +30,8 @@ public class Task implements Comparable<Task> {
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
-		Matcher m;
-
 		// find the priority
-		m = re_priority.matcher(this.source);
+		Matcher m = re_priority.matcher(this.source);
 		if(m.find()) {
 			this.priority = Integer.parseInt(m.group(2).substring(1));
 			if(this.priority == 0) { // !0 is actually -1 priority
@@ -42,33 +40,8 @@ public class Task implements Comparable<Task> {
 			this.tags.add(m.group(2));
 		}
 
-		m = re_date.matcher(this.source);
-		if(m.find()) {
-			this.calendar.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1);
-			this.calendar.set(Calendar.DATE, Integer.parseInt(m.group(3)));
-
-			if(m.group(5) != null) {
-				this.calendar.set(Calendar.YEAR, Integer.parseInt(m.group(5)) + 2000);
-			}
-
-			if(m.group(7) != null) {
-				this.calendar.set(Calendar.HOUR, Integer.parseInt(m.group(7)));
-			} else {
-				this.calendar.set(Calendar.HOUR, 11);
-			}
-			if(m.group(9) != null) {
-				this.calendar.set(Calendar.MINUTE, Integer.parseInt(m.group(9)));
-			} else {
-				this.calendar.set(Calendar.MINUTE, 59);
-			}
-			if(m.group(10) != null) {
-				this.calendar.set(Calendar.AM_PM, m.group(10).toLowerCase().equals("pm") ? Calendar.PM : Calendar.AM);
-			} else {
-				this.calendar.set(Calendar.AM_PM, Calendar.PM);
-			}
-		} else {
-			this.calendar.setTimeInMillis(0);
-		}
+		// find the date
+		this.calendar = Task.matcherToCalendar(re_date.matcher(this.source));
 
 		this.addTags(re_date.matcher(this.source), 0);
 		this.addTags(re_tag.matcher(this.source), 2);
@@ -132,5 +105,38 @@ public class Task implements Comparable<Task> {
 		}
 
 		return Pattern.matches(regex, this.source.toLowerCase());
+	}
+
+
+	public static Calendar matcherToCalendar(Matcher m) {
+		Calendar temp = Calendar.getInstance();
+		if(m.find()) {
+			temp.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1);
+			temp.set(Calendar.DATE, Integer.parseInt(m.group(3)));
+
+			if(m.group(5) != null) {
+				temp.set(Calendar.YEAR, Integer.parseInt(m.group(5)) + 2000);
+			}
+
+			if(m.group(7) != null) {
+				temp.set(Calendar.HOUR, Integer.parseInt(m.group(7)));
+			} else {
+				temp.set(Calendar.HOUR, 11);
+			}
+			if(m.group(9) != null) {
+				temp.set(Calendar.MINUTE, Integer.parseInt(m.group(9)));
+			} else {
+				temp.set(Calendar.MINUTE, 59);
+			}
+			if(m.group(10) != null) {
+				temp.set(Calendar.AM_PM, m.group(10).toLowerCase().equals("pm") ? Calendar.PM : Calendar.AM);
+			} else {
+				temp.set(Calendar.AM_PM, Calendar.PM);
+			}
+		} else {
+			temp.setTimeInMillis(0);
+		}
+
+		return temp;
 	}
 }
