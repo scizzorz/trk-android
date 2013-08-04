@@ -119,6 +119,7 @@ public class Main extends Activity {
 			list.add(source);
 			taskAdapter.notifyDataSetChanged();
 			tagAdapter.notifyDataSetChanged();
+			autoCompleteAdapter.notifyDataSetChanged();
 			omnibar.setText("");
 			list.write();
 		}
@@ -133,6 +134,7 @@ public class Main extends Activity {
 				list.filter(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
 				tagAdapter.notifyDataSetChanged();
+				autoCompleteAdapter.notifyDataSetChanged();
 				list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
