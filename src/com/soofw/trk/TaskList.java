@@ -118,7 +118,7 @@ public class TaskList {
 						}
 						break;
 					default:
-						if(!this.tagList.contains(tags[j])) continue;
+						if(this.tagList.contains(tags[j])) continue;
 						this.tagList.add(tags[j]);
 				}
 			}
