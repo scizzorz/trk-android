@@ -1,8 +1,8 @@
 package com.soofw.trk;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.animation.Animation;
@@ -14,23 +14,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.ListView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class Main extends Activity {
+public class Main extends FragmentActivity {
 	private Trk app = null;
 
-	private MultiAutoCompleteTextView omnibar = null;
-	private ListView taskView = null;
 	private DrawerLayout drawerLayout = null;
 	private ListView drawer = null;
+	private ListView taskView = null;
+	private MultiAutoCompleteTextView omnibar = null;
 
+	private ArrayAdapter<String> autoCompleteAdapter = null;
 	private TagAdapter tagAdapter = null;
 	private TaskAdapter taskAdapter = null;
-	private ArrayAdapter<String> autoCompleteAdapter = null;
 	private TaskList list = null;
 
 	@Override
@@ -51,6 +52,7 @@ public class Main extends Activity {
 
 		taskAdapter = new TaskAdapter(this, this.list.getFilterList());
 		taskView.setAdapter(taskAdapter);
+		taskView.setLongClickable(true);
 		taskView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -59,6 +61,13 @@ public class Main extends Activity {
 					((ListView)parent).setItemChecked(position, false);
 					deleteItem(view, position);
 				}
+			}
+		});
+		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				new ActionDialogFragment().show(Main.this.getSupportFragmentManager(), "tag?");
+				return true;
 			}
 		});
 
