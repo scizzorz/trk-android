@@ -9,6 +9,7 @@ import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 class TaskAdapter extends ArrayAdapter<Task> {
 	private View view;
@@ -24,6 +25,10 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	@Override
 	public View getView(int pos, View convertView, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		Calendar now = Calendar.getInstance();
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.add(Calendar.DATE, 1);
+
 		this.view = convertView;
 		if(this.view == null) {
 			this.view = inflater.inflate(R.layout.list_item, null);
@@ -72,7 +77,13 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							}
 							break;
 						default:
-							bg_id = R.color.date_bg;
+							if(temp.calendar.before(now)) {
+								bg_id = R.color.date_overdue_bg;
+							} else if(temp.calendar.before(tomorrow)) {
+								bg_id = R.color.date_soon_bg;
+							} else {
+								bg_id = R.color.date_bg;
+							}
 							tag.setText(tags[i]);
 					}
 
