@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -23,7 +23,7 @@ import android.widget.TextView.OnEditorActionListener;
 public class Main extends Activity {
 	private Trk app = null;
 
-	private AutoCompleteTextView omnibar = null;
+	private MultiAutoCompleteTextView omnibar = null;
 	private ListView taskView = null;
 	private DrawerLayout drawerLayout = null;
 	private ListView drawer = null;
@@ -39,7 +39,7 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 
 		app = (Trk)getApplicationContext();
-		omnibar = (AutoCompleteTextView)findViewById(R.id.omnibar);
+		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
@@ -83,6 +83,7 @@ public class Main extends Activity {
 
 		autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
 		omnibar.setAdapter(autoCompleteAdapter);
+		omnibar.setTokenizer(new SpaceTokenizer());
 		omnibar.setThreshold(1);
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
