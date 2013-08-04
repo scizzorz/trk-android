@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
+import java.util.Calendar;
 
 class TagAdapter extends ArrayAdapter<String> {
 	private View view;
@@ -21,6 +22,10 @@ class TagAdapter extends ArrayAdapter<String> {
 
 	@Override
 	public View getView(int pos, View convertView, ViewGroup parent) {
+		Calendar now = Calendar.getInstance();
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.add(Calendar.DATE, 1);
+
 		this.view = convertView;
 		if(this.view == null) {
 			LayoutInflater inflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -50,7 +55,14 @@ class TagAdapter extends ArrayAdapter<String> {
 				}
 				break;
 			default:
-				fg_id = R.color.date_fg;
+				Calendar c = Task.matcherToCalendar(Task.re_date.matcher(tag));
+				if(c.before(now)) {
+					fg_id = R.color.date_overdue_fg;
+				} else if(c.before(tomorrow)) {
+					fg_id = R.color.date_soon_fg;
+				} else {
+					fg_id = R.color.date_fg;
+				}
 		}
 		((ListView)parent).setItemChecked(pos, this.list.hasTagFilter(tag));
 		text.setTextColor(this.context.getResources().getColor(fg_id));
