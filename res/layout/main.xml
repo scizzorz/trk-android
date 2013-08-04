@@ -17,7 +17,7 @@
 			android:layout_width="match_parent"
 			android:orientation="horizontal"
 			>
-			<EditText
+			<MultiAutoCompleteTextView
 				android:id="@+id/omnibar"
 				android:hint="@string/omnibar_hint"
 				android:imeOptions="actionSend"
