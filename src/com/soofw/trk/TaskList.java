@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +117,28 @@ public class TaskList {
 				}
 			}
 		}
-		Collections.sort(this.tagList);
+		Collections.sort(this.tagList, new Comparator<String>() {
+			@Override
+			public int compare(String one, String two) {
+				Calendar c1 = Task.matcherToCalendar(Task.re_date.matcher(one));
+				Calendar c2 = Task.matcherToCalendar(Task.re_date.matcher(two));
+				if(c1 != null && c2 == null) {
+					return -1;
+				} else if(c1 == null && c2 != null) {
+					return 1;
+				} else if(c1 != null && c2 != null) {
+					if(c1 != null && c2 != null && !c1.equals(c2)) {
+						return c1.compareTo(c2);
+					}
+				}
+
+				if(one.charAt(0) == '!' && two.charAt(0) == '!') {
+					return two.compareTo(one);
+				}
+
+				return one.compareTo(two);
+			}
+		});
 	}
 
 	public void addTagFilter(String tag) {
