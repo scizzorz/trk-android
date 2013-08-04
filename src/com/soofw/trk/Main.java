@@ -119,7 +119,12 @@ public class Main extends Activity {
 			list.add(source);
 			taskAdapter.notifyDataSetChanged();
 			tagAdapter.notifyDataSetChanged();
-			autoCompleteAdapter.notifyDataSetChanged();
+
+			// apparently autoCompleteAdapter.notifyDataSetChanged()
+			// won't update a MultiAutoCompleteTextView list
+			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
+			omnibar.setAdapter(autoCompleteAdapter);
+
 			omnibar.setText("");
 			list.write();
 		}
@@ -134,7 +139,12 @@ public class Main extends Activity {
 				list.filter(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
 				tagAdapter.notifyDataSetChanged();
-				autoCompleteAdapter.notifyDataSetChanged();
+
+				// apparently autoCompleteAdapter.notifyDataSetChanged()
+				// won't update a MultiAutoCompleteTextView list
+				autoCompleteAdapter = new ArrayAdapter<String>(Main.this, android.R.layout.simple_dropdown_item_1line, Main.this.list.getComplexTagList());
+				omnibar.setAdapter(autoCompleteAdapter);
+
 				list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
