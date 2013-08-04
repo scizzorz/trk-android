@@ -122,8 +122,14 @@ public class TaskList {
 			public int compare(String one, String two) {
 				Calendar c1 = Task.matcherToCalendar(Task.re_date.matcher(one));
 				Calendar c2 = Task.matcherToCalendar(Task.re_date.matcher(two));
-				if(!c1.equals(c2)) {
-					return c2.compareTo(c1);
+				if(c1 != null && c2 == null) {
+					return -1;
+				} else if(c1 == null && c2 != null) {
+					return 1;
+				} else if(c1 != null && c2 != null) {
+					if(c1 != null && c2 != null && !c1.equals(c2)) {
+						return c1.compareTo(c2);
+					}
 				}
 
 				if(one.charAt(0) == '!' && two.charAt(0) == '!') {

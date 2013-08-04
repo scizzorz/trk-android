@@ -58,8 +58,14 @@ public class Task implements Comparable<Task> {
 			return other.priority - this.priority;
 		}
 
-		if(!this.calendar.equals(other.calendar)) {
-			return other.calendar.compareTo(this.calendar);
+		if(this.calendar != null && other.calendar == null) {
+			return -1;
+		} else if(this.calendar == null && other.calendar != null) {
+			return 1;
+		} else if(this.calendar != null && other.calendar != null) {
+			if(!this.calendar.equals(other.calendar)) {
+				return this.calendar.compareTo(other.calendar);
+			}
 		}
 
 		return this.sortVal.compareTo(other.sortVal);
@@ -109,8 +115,9 @@ public class Task implements Comparable<Task> {
 
 
 	public static Calendar matcherToCalendar(Matcher m) {
-		Calendar temp = Calendar.getInstance();
 		if(m.find()) {
+			Calendar temp = Calendar.getInstance();
+
 			temp.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1);
 			temp.set(Calendar.DATE, Integer.parseInt(m.group(3)));
 
@@ -133,10 +140,10 @@ public class Task implements Comparable<Task> {
 			} else {
 				temp.set(Calendar.AM_PM, Calendar.PM);
 			}
-		} else {
-			temp.setTimeInMillis(0);
+
+			return temp;
 		}
 
-		return temp;
+		return null;
 	}
 }
