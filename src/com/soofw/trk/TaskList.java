@@ -21,6 +21,7 @@ public class TaskList {
 	ArrayList<Task> mainList = new ArrayList<Task>();
 	ArrayList<Task> filterList = new ArrayList<Task>();
 	ArrayList<String> tagList = new ArrayList<String>();
+	ArrayList<String> complexTagList = new ArrayList<String>();
 	ArrayList<String> tagFilters = new ArrayList<String>();
 
 	public TaskList(File file) {
@@ -96,6 +97,8 @@ public class TaskList {
 
 	public void generateTagList() {
 		this.tagList.clear();
+		this.complexTagList.clear();
+
 		for(int i = 0; i < this.mainList.size(); i++) {
 			String[] tags = this.mainList.get(i).getTags();
 			for(int j = 0; j < tags.length; j++) {
@@ -106,13 +109,16 @@ public class TaskList {
 					case '#':
 					case '!':
 						String[] subtags = tags[j].substring(1).split("/");
+						if(!this.complexTagList.contains(tags[j])) {
+							this.complexTagList.add(tags[j]);
+						}
 						for(int k = 0; k < subtags.length; k++) {
 							if(this.tagList.contains(type + subtags[k])) continue;
 							this.tagList.add(type + subtags[k]);
 						}
 						break;
 					default:
-						if(this.tagList.contains(tags[j])) continue;
+						if(!this.tagList.contains(tags[j])) continue;
 						this.tagList.add(tags[j]);
 				}
 			}
@@ -132,6 +138,16 @@ public class TaskList {
 					}
 				}
 
+				if(one.charAt(0) == '!' && two.charAt(0) == '!') {
+					return two.compareTo(one);
+				}
+
+				return one.compareTo(two);
+			}
+		});
+		Collections.sort(this.complexTagList, new Comparator<String>() {
+			@Override
+			public int compare(String one, String two) {
 				if(one.charAt(0) == '!' && two.charAt(0) == '!') {
 					return two.compareTo(one);
 				}
@@ -185,8 +201,10 @@ public class TaskList {
 	public ArrayList<Task> getFilterList() {
 		return this.filterList;
 	}
-
 	public ArrayList<String> getTagList() {
 		return this.tagList;
+	}
+	public ArrayList<String> getComplexTagList() {
+		return this.complexTagList;
 	}
 }

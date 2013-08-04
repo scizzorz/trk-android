@@ -14,7 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -22,13 +23,14 @@ import android.widget.TextView.OnEditorActionListener;
 public class Main extends Activity {
 	private Trk app = null;
 
-	private EditText omnibar = null;
+	private AutoCompleteTextView omnibar = null;
 	private ListView taskView = null;
 	private DrawerLayout drawerLayout = null;
 	private ListView drawer = null;
 
 	private TagAdapter tagAdapter = null;
 	private TaskAdapter taskAdapter = null;
+	private ArrayAdapter<String> autoCompleteAdapter = null;
 	private TaskList list = null;
 
 	@Override
@@ -37,7 +39,7 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 
 		app = (Trk)getApplicationContext();
-		omnibar = (EditText)findViewById(R.id.omnibar);
+		omnibar = (AutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
@@ -47,7 +49,7 @@ public class Main extends Activity {
 		this.list = new TaskList(this.app.listFile);
 		this.list.read();
 
-		taskAdapter = new TaskAdapter(this, list.getFilterList());
+		taskAdapter = new TaskAdapter(this, this.list.getFilterList());
 		taskView.setAdapter(taskAdapter);
 		taskView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -79,6 +81,9 @@ public class Main extends Activity {
 		});
 
 
+		autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
+		omnibar.setAdapter(autoCompleteAdapter);
+		omnibar.setThreshold(1);
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -87,7 +92,6 @@ public class Main extends Activity {
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		});
-
 		omnibar.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
