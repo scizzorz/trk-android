@@ -56,7 +56,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						tags_layout.addView(tag);
 					}
 
-					tag.setText(tags[i].substring(1));
+					tag.setText(tags[i]);
 					int bg_id = 0;
 					switch(tags[i].charAt(0)) {
 						case '+':
@@ -83,7 +83,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							} else {
 								bg_id = R.color.date_bg;
 							}
-							tag.setText(tags[i]);
 					}
 
 					tag.setBackgroundColor(this.context.getResources().getColor(bg_id));
