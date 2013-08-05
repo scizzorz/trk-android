@@ -99,7 +99,12 @@ public class TaskList {
 	private void update() {
 		Collections.sort(this.mainList);
 		this.generateTagList();
-		this.cleanTagFilters();
+		for(int i = 0; i < this.tagFilters.size(); i++) {
+			if(!this.tagList.contains(this.tagFilters.get(i))) {
+				this.tagFilters.remove(i);
+				i--;
+			}
+		}
 	}
 
 	private void generateTagList() {
@@ -179,14 +184,6 @@ public class TaskList {
 	public void clearTagFilter() {
 		this.tagFilters.clear();
 	}
-	public void cleanTagFilters() {
-		for(int i = 0; i < this.tagFilters.size(); i++) {
-			if(!this.tagList.contains(this.tagFilters.get(i))) {
-				this.tagFilters.remove(i);
-				i--;
-			}
-		}
-	}
 
 	public void filter(String search) {
 		this.lastFilter = search;
@@ -209,18 +206,5 @@ public class TaskList {
 	}
 	public void filter() {
 		this.filter(this.lastFilter);
-	}
-
-	public ArrayList<Task> getMainList() {
-		return this.mainList;
-	}
-	public ArrayList<Task> getFilterList() {
-		return this.filterList;
-	}
-	public ArrayList<String> getTagList() {
-		return this.tagList;
-	}
-	public ArrayList<String> getComplexTagList() {
-		return this.complexTagList;
 	}
 }

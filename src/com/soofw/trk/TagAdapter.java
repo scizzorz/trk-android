@@ -15,7 +15,7 @@ class TagAdapter extends ArrayAdapter<String> {
 	private TaskList list;
 
 	public TagAdapter(Context context, TaskList list) {
-		super(context, R.layout.drawer_list_item, list.getTagList());
+		super(context, R.layout.drawer_list_item, list.tagList);
 		this.context = context;
 		this.list = list;
 	}
