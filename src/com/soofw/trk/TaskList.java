@@ -45,8 +45,8 @@ class TaskList {
 
 			reader.close();
 		} catch(FileNotFoundException e) {
-			// FIXME
 			Log.e("TRK", e.getMessage());
+			this.tutorial();
 		} catch(IOException e) {
 			// FIXME
 			Log.e("TRK", e.getMessage());
@@ -66,6 +66,21 @@ class TaskList {
 			// FIXME
 			Log.e("TRK", e.getMessage());
 		}
+	}
+	void tutorial() {
+		this.add("Tag by due date 12/31");
+		this.add("Tag by a project +garden");
+		this.add("Tag by a location @home");
+		this.add("Tag by anything #life");
+		this.add("Tag by everything +shopping @store #life");
+		this.add("Tag by priority !1");
+		this.add("Or tag by low priority !0");
+		this.add("Use subtags +work/tpsreports @office/garbage");
+		this.add("Type to search or add");
+		this.add("Long press to edit");
+		this.add("Long press to filter +by @the #tags");
+		this.add("Slide out from the left to filter");
+		this.filterList.addAll(this.mainList);
 	}
 
 	void add(String source) {
