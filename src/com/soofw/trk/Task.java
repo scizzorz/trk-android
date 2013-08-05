@@ -30,6 +30,8 @@ public class Task implements Comparable<Task> {
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
+		this.sortVal = this.sortVal.toLowerCase();
+
 		// find the priority
 		Matcher m = re_priority.matcher(this.source);
 		if(m.find()) {
