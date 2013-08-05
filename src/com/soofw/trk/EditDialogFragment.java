@@ -8,38 +8,40 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 public class EditDialogFragment extends DialogFragment {
-	
-	TaskList list;
+	Main activity;
 	int id;
 
-	public EditDialogFragment(TaskList list, int id) {
-		this.list = list;
+	public EditDialogFragment(int id) {
 		this.id = id;
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		// FIXME make autocomplete
-		final EditText input = new EditText(this.getActivity());
-		input.setText(list.get(this.id).source);
+		this.activity = (Main)this.getActivity();
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		final MultiAutoCompleteTextView input = new MultiAutoCompleteTextView(this.activity);
+		input.setText(this.activity.list.get(this.id).source);
+		input.setAdapter(this.activity.autoCompleteAdapter);
+		input.setTokenizer(new SpaceTokenizer());
+		input.setThreshold(1);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
 		builder.setTitle("Edit");
 		builder.setView(input);
 		builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				((Main)EditDialogFragment.this.getActivity()).editItem(id, input.getText().toString());
+				EditDialogFragment.this.activity.editItem(id, input.getText().toString());
 			}
 		});
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(EditDialogFragment.this.getActivity(), "Cancelling...", Toast.LENGTH_SHORT).show();
+				Toast.makeText(EditDialogFragment.this.activity, "Cancelling...", Toast.LENGTH_SHORT).show();
 			}
 		});
 

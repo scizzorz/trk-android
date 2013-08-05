@@ -66,7 +66,7 @@ public class Main extends FragmentActivity {
 		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment(list, position).show(Main.this.getSupportFragmentManager(), "tag?");
+				new ActionDialogFragment(position).show(Main.this.getSupportFragmentManager(), "tag?");
 				return true;
 			}
 		});

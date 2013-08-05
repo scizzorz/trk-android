@@ -12,26 +12,27 @@ import android.support.v4.app.DialogFragment;
 public class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
 
-	TaskList list;
+	Main activity;
 	int id;
 
-	public ActionDialogFragment(TaskList list, int id) {
-		this.list = list;
+	public ActionDialogFragment(int id) {
 		this.id = id;
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		this.activity = (Main)this.getActivity();
+
 		String[] actions = new String[2];
 		actions[0] = "Edit";
 		actions[1] = "(complex tags here)";
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
 		builder.setItems(actions, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(which == ActionDialogFragment.EDIT) {
-					new EditDialogFragment(list, id).show(ActionDialogFragment.this.getActivity().getSupportFragmentManager(), "tag!");
+					new EditDialogFragment(id).show(ActionDialogFragment.this.activity.getSupportFragmentManager(), "tag!");
 				}
 			}
 		});
