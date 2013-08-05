@@ -72,30 +72,38 @@ public class TaskList {
 
 	public void add(String source) {
 		this.mainList.add(new Task(source));
-		Collections.sort(this.mainList);
-
-		this.generateTagList();
+		this.update();
 	}
 	public void add(Task source) {
 		this.mainList.add(source);
-		Collections.sort(this.mainList);
-
-		this.generateTagList();
+		this.update();
 	}
-	public void remove(int id) {
-		this.mainList.remove(this.filterList.get(id));
-		Collections.sort(this.mainList);
-
-		this.generateTagList();
-		for(int i = 0; i < this.tagFilters.size(); i++) {
-			if(!this.tagList.contains(this.tagFilters.get(i))) {
-				this.tagFilters.remove(i);
-				i--;
-			}
-		}
+	public void set(int id, String source) {
+		this.mainList.set(id, new Task(source));
+		this.update();
+	}
+	public void set(int id, Task source) {
+		this.mainList.set(id, source);
+		this.update();
+	}
+	public void remove(Task task) {
+		this.mainList.remove(task);
+		this.update();
+	}
+	public Task get(int id) {
+		return this.mainList.get(id);
+	}
+	public int indexOf(Task task) {
+		return this.mainList.indexOf(task);
 	}
 
-	public void generateTagList() {
+	private void update() {
+		Collections.sort(this.mainList);
+		this.generateTagList();
+		this.cleanTagFilters();
+	}
+
+	private void generateTagList() {
 		this.tagList.clear();
 		this.complexTagList.clear();
 
@@ -170,6 +178,14 @@ public class TaskList {
 	}
 	public void clearTagFilter() {
 		this.tagFilters.clear();
+	}
+	public void cleanTagFilters() {
+		for(int i = 0; i < this.tagFilters.size(); i++) {
+			if(!this.tagList.contains(this.tagFilters.get(i))) {
+				this.tagFilters.remove(i);
+				i--;
+			}
+		}
 	}
 
 	public void filter(String search) {
