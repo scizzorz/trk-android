@@ -188,26 +188,26 @@ public class Main extends FragmentActivity {
 	public void addFilter(String filter) {
 		this.list.addTagFilter(filter);
 		this.filterItems();
-		this.taskAdapter.notifyDataSetChanged();
 		this.updateFilterList();
+		this.tagAdapter.notifyDataSetChanged();
 	}
 	public void addFilter(View view) {
 		this.list.addTagFilter(((TextView)view).getText().toString());
 		this.filterItems();
-		this.taskAdapter.notifyDataSetChanged();
 		this.updateFilterList();
+		this.tagAdapter.notifyDataSetChanged();
 	}
 	public void removeFilter(String filter) {
 		this.list.removeTagFilter(filter);
 		this.filterItems();
-		this.taskAdapter.notifyDataSetChanged();
 		this.updateFilterList();
+		this.tagAdapter.notifyDataSetChanged();
 	}
 	public void removeFilter(View view) {
 		this.list.removeTagFilter(((TextView)view).getText().toString());
 		this.filterItems();
-		this.taskAdapter.notifyDataSetChanged();
 		this.updateFilterList();
+		this.tagAdapter.notifyDataSetChanged();
 	}
 
 
