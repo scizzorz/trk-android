@@ -22,10 +22,11 @@ public class ActionDialogFragment extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		this.activity = (Main)this.getActivity();
+		String[] tags = this.task.getTags();
 
-		String[] actions = new String[2];
+		String[] actions = new String[tags.length + 1];
 		actions[0] = "Edit";
-		actions[1] = "(complex tags here)";
+		System.arraycopy(tags, 0, actions, 1, tags.length);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
 		builder.setItems(actions, new DialogInterface.OnClickListener() {
