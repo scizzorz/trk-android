@@ -66,7 +66,8 @@ public class Main extends FragmentActivity {
 		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment(position).show(Main.this.getSupportFragmentManager(), "tag?");
+				new ActionDialogFragment(list.getFilterList().get(position))
+					.show(Main.this.getSupportFragmentManager(), "tag?");
 				return true;
 			}
 		});
@@ -139,9 +140,9 @@ public class Main extends FragmentActivity {
 		}
 	}
 
-	public void editItem(int index, String newSource) {
+	public void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
-			list.set(index, newSource);
+			list.set(list.indexOf(source), newSource);
 			list.filter();
 			taskAdapter.notifyDataSetChanged();
 			tagAdapter.notifyDataSetChanged();
@@ -160,7 +161,7 @@ public class Main extends FragmentActivity {
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				list.remove(index);
+				list.remove(list.getFilterList().get(index));
 				list.filter(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
 				tagAdapter.notifyDataSetChanged();

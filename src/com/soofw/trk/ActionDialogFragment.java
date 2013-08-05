@@ -13,10 +13,10 @@ public class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
 
 	Main activity;
-	int id;
+	Task task;
 
-	public ActionDialogFragment(int id) {
-		this.id = id;
+	public ActionDialogFragment(Task task) {
+		this.task = task;
 	}
 
 	@Override
@@ -32,7 +32,8 @@ public class ActionDialogFragment extends DialogFragment {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(which == ActionDialogFragment.EDIT) {
-					new EditDialogFragment(id).show(ActionDialogFragment.this.activity.getSupportFragmentManager(), "tag!");
+					new EditDialogFragment(ActionDialogFragment.this.task)
+						.show(ActionDialogFragment.this.activity.getSupportFragmentManager(), "tag!");
 				}
 			}
 		});

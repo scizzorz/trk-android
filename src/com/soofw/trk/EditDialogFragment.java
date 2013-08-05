@@ -13,10 +13,10 @@ import android.widget.Toast;
 
 public class EditDialogFragment extends DialogFragment {
 	Main activity;
-	int id;
+	Task task;
 
-	public EditDialogFragment(int id) {
-		this.id = id;
+	public EditDialogFragment(Task task) {
+		this.task = task;
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class EditDialogFragment extends DialogFragment {
 		this.activity = (Main)this.getActivity();
 
 		final MultiAutoCompleteTextView input = new MultiAutoCompleteTextView(this.activity);
-		input.setText(this.activity.list.get(this.id).source);
+		input.setText(this.task.source);
 		input.setAdapter(this.activity.autoCompleteAdapter);
 		input.setTokenizer(new SpaceTokenizer());
 		input.setThreshold(1);
@@ -35,14 +35,12 @@ public class EditDialogFragment extends DialogFragment {
 		builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				EditDialogFragment.this.activity.editItem(id, input.getText().toString());
+				EditDialogFragment.this.activity
+					.editItem(EditDialogFragment.this.task, input.getText().toString());
 			}
 		});
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(EditDialogFragment.this.activity, "Cancelling...", Toast.LENGTH_SHORT).show();
-			}
+			@Override public void onClick(DialogInterface dialog, int which) {}
 		});
 
 		return builder.create();
