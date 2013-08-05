@@ -5,7 +5,7 @@ import android.os.Environment;
 import java.io.File;
 
 public class Trk extends Application {
-	public File storageDir, listFile;
+	File storageDir, listFile;
 
 	@Override
 	public void onCreate() {

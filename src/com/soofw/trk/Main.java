@@ -120,7 +120,7 @@ public class Main extends FragmentActivity {
 		});
 	}
 
-	public void updateFilterList() {
+	void updateFilterList() {
 		if(this.list.tagFilters.size() == 0) {
 			filterLayout.setVisibility(View.GONE);
 			return;
@@ -180,12 +180,12 @@ public class Main extends FragmentActivity {
 		}
 	}
 
-	public void filterItems() {
+	void filterItems() {
 		list.filter(omnibar.getText().toString());
 		taskAdapter.notifyDataSetChanged();
 	}
 
-	public void addFilter(String filter) {
+	void addFilter(String filter) {
 		this.list.addTagFilter(filter);
 		this.filterItems();
 		this.updateFilterList();
@@ -197,7 +197,7 @@ public class Main extends FragmentActivity {
 		this.updateFilterList();
 		this.tagAdapter.notifyDataSetChanged();
 	}
-	public void removeFilter(String filter) {
+	void removeFilter(String filter) {
 		this.list.removeTagFilter(filter);
 		this.filterItems();
 		this.updateFilterList();
@@ -214,7 +214,7 @@ public class Main extends FragmentActivity {
 	public void addItem(View view) {
 		addItem();
 	}
-	public void addItem() {
+	void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
 			list.add(source);
@@ -231,7 +231,7 @@ public class Main extends FragmentActivity {
 		}
 	}
 
-	public void editItem(Task source, String newSource) {
+	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
 			list.set(list.indexOf(source), newSource);
 			list.filter();
@@ -248,7 +248,7 @@ public class Main extends FragmentActivity {
 	}
 
 	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
-	public void deleteItem(final View view, final int index) {
+	void deleteItem(final View view, final int index) {
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
@@ -271,7 +271,7 @@ public class Main extends FragmentActivity {
 		collapseView(view, al);
 	}
 
-	public void collapseView(final View view, final AnimationListener al) {
+	void collapseView(final View view, final AnimationListener al) {
 		final int initialHeight = view.getMeasuredHeight();
 
 		Animation anim = new Animation() {

@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 class TaskAdapter extends ArrayAdapter<Task> {
-	private View view;
-	private Context context;
-	private ArrayList<Task> tasks;
+	View view;
+	Context context;
+	ArrayList<Task> tasks;
 
-	public TaskAdapter(Context context, ArrayList<Task> tasks) {
+	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.list_item, tasks);
 		this.context = context;
 		this.tasks = tasks;

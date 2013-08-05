@@ -8,7 +8,7 @@ import android.widget.MultiAutoCompleteTextView.Tokenizer;
 /**
  * This class is derived from the Android MultiAutoCompleteTextView.CommaTokenizer class.
  */
-public class SpaceTokenizer implements Tokenizer {
+class SpaceTokenizer implements Tokenizer {
 
 	public int findTokenStart(CharSequence text, int cursor) {
 		int i = cursor;

@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TaskList {
+class TaskList {
 	String lastFilter = "";
 	File file = null;
 	ArrayList<Task> mainList = new ArrayList<Task>();
@@ -24,11 +24,11 @@ public class TaskList {
 	ArrayList<String> complexTagList = new ArrayList<String>();
 	ArrayList<String> tagFilters = new ArrayList<String>();
 
-	public TaskList(File file) {
+	TaskList(File file) {
 		this.file = file;
 	}
 
-	public void read() {
+	void read() {
 		try {
 			String line = null;
 			BufferedReader reader = new BufferedReader(new FileReader(this.file));
@@ -52,8 +52,7 @@ public class TaskList {
 			Log.e("TRK", e.getMessage());
 		}
 	}
-
-	public void write() {
+	void write() {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(this.file));
 
@@ -69,34 +68,34 @@ public class TaskList {
 		}
 	}
 
-	public void add(String source) {
+	void add(String source) {
 		this.mainList.add(new Task(source));
 		this.update();
 	}
-	public void add(Task source) {
+	void add(Task source) {
 		this.mainList.add(source);
 		this.update();
 	}
-	public void set(int id, String source) {
+	void set(int id, String source) {
 		this.mainList.set(id, new Task(source));
 		this.update();
 	}
-	public void set(int id, Task source) {
+	void set(int id, Task source) {
 		this.mainList.set(id, source);
 		this.update();
 	}
-	public void remove(Task task) {
+	void remove(Task task) {
 		this.mainList.remove(task);
 		this.update();
 	}
-	public Task get(int id) {
+	Task get(int id) {
 		return this.mainList.get(id);
 	}
-	public int indexOf(Task task) {
+	int indexOf(Task task) {
 		return this.mainList.indexOf(task);
 	}
 
-	private void update() {
+	void update() {
 		Collections.sort(this.mainList);
 		this.generateTagList();
 		for(int i = 0; i < this.tagFilters.size(); i++) {
@@ -107,7 +106,7 @@ public class TaskList {
 		}
 	}
 
-	private void generateTagList() {
+	void generateTagList() {
 		this.tagList.clear();
 		this.complexTagList.clear();
 
@@ -168,24 +167,24 @@ public class TaskList {
 		});
 	}
 
-	public void addTagFilter(String tag) {
+	void addTagFilter(String tag) {
 		if(!this.tagFilters.contains(tag)) {
 			this.tagFilters.add(tag);
 		}
 	}
-	public void removeTagFilter(String tag) {
+	void removeTagFilter(String tag) {
 		if(this.tagFilters.contains(tag)) {
 			this.tagFilters.remove(tag);
 		}
 	}
-	public boolean hasTagFilter(String tag) {
+	boolean hasTagFilter(String tag) {
 		return this.tagFilters.contains(tag);
 	}
-	public void clearTagFilter() {
+	void clearTagFilters() {
 		this.tagFilters.clear();
 	}
 
-	public void filter(String search) {
+	void filter(String search) {
 		this.lastFilter = search;
 		this.filterList.clear();
 		for(int i = 0; i < this.mainList.size(); i++) {
@@ -204,7 +203,7 @@ public class TaskList {
 			this.filterList.add(this.mainList.get(i));
 		}
 	}
-	public void filter() {
+	void filter() {
 		this.filter(this.lastFilter);
 	}
 }
