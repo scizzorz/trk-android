@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -144,6 +145,16 @@ public class Main extends FragmentActivity {
 					tag.setVisibility(View.VISIBLE);
 				} else {
 					tag = (TextView)this.inflater.inflate(R.layout.tag_item, filterLayout, false);
+					tag.setClickable(true);
+					tag.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							Main.this.list.removeTagFilter(((TextView)view).getText().toString());
+							Main.this.filterItems(omnibar.getText().toString());
+							Main.this.taskAdapter.notifyDataSetChanged();
+							Main.this.updateFilterList();
+						}
+					});
 					filterLayout.addView(tag);
 				}
 
