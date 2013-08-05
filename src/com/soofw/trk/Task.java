@@ -30,6 +30,8 @@ public class Task implements Comparable<Task> {
 		this.pretty = this.pretty.replaceAll("\\s+", " ");
 		this.pretty = this.pretty.trim();
 
+		this.sortVal = this.sortVal.toLowerCase();
+
 		// find the priority
 		Matcher m = re_priority.matcher(this.source);
 		if(m.find()) {
@@ -99,15 +101,15 @@ public class Task implements Comparable<Task> {
 
 		switch(type) {
 			case '!':
-				regex = "(^.*|\\s)(\\!" + content + ")(\\s|.*$)";
+				regex = "(^|.*\\s)(\\!" + content + ")(\\s.*|$)";
 				break;
 			case '+':
 			case '#':
 			case '@':
-				regex = "(^.*|\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s|\\/|.*$)";
+				regex = "(^|.*\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s.*|\\/.*|$)";
 				break;
 			default:
-				return this.contains(tag);
+				regex = "(^|.*\\s)(" + tag + ")(\\s.*|$)";
 		}
 
 		return Pattern.matches(regex, this.source.toLowerCase());

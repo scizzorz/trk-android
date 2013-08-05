@@ -1,7 +1,8 @@
 package com.soofw.trk;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,28 +11,34 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.MultiAutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import java.util.Calendar;
 
-public class Main extends Activity {
-	private Trk app = null;
+public class Main extends FragmentActivity {
+	Trk app = null;
 
-	private MultiAutoCompleteTextView omnibar = null;
-	private ListView taskView = null;
-	private DrawerLayout drawerLayout = null;
-	private ListView drawer = null;
+	DrawerLayout drawerLayout = null;
+	LayoutInflater inflater = null;
+	LinearLayout filterLayout = null;
+	ListView drawer = null;
+	ListView taskView = null;
+	MultiAutoCompleteTextView omnibar = null;
 
-	private TagAdapter tagAdapter = null;
-	private TaskAdapter taskAdapter = null;
-	private ArrayAdapter<String> autoCompleteAdapter = null;
-	private TaskList list = null;
+	ArrayAdapter<String> autoCompleteAdapter = null;
+	TagAdapter tagAdapter = null;
+	TaskAdapter taskAdapter = null;
+	TaskList list = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -39,11 +46,14 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 
 		app = (Trk)getApplicationContext();
-		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
-		taskView = (ListView)findViewById(R.id.task_view);
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
+		filterLayout = (LinearLayout)findViewById(R.id.filter_layout);
+		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
+		taskView = (ListView)findViewById(R.id.task_view);
 
+		filterLayout.setVisibility(View.GONE);
 		taskView.setItemsCanFocus(false);
 
 		this.list = new TaskList(this.app.listFile);
@@ -51,6 +61,7 @@ public class Main extends Activity {
 
 		taskAdapter = new TaskAdapter(this, this.list.getFilterList());
 		taskView.setAdapter(taskAdapter);
+		taskView.setLongClickable(true);
 		taskView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -61,6 +72,14 @@ public class Main extends Activity {
 				}
 			}
 		});
+		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				new ActionDialogFragment(list.getFilterList().get(position))
+					.show(Main.this.getSupportFragmentManager(), "tag?");
+				return true;
+			}
+		});
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
@@ -68,15 +87,11 @@ public class Main extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
-				String text = ((TextView)view).getText().toString();
 				if(checked) {
-					list.addTagFilter(text);
+					Main.this.addFilter(view);
 				} else {
-					list.removeTagFilter(text);
+					Main.this.removeFilter(view);
 				}
-
-				filterItems(omnibar.getText().toString());
-				taskAdapter.notifyDataSetChanged();
 			}
 		});
 
@@ -88,7 +103,7 @@ public class Main extends Activity {
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				filterItems(s.toString());
+				filterItems();
 			}
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -105,10 +120,96 @@ public class Main extends Activity {
 		});
 	}
 
-	public void filterItems(String search) {
-		list.filter(search);
+	public void updateFilterList() {
+		if(this.list.tagFilters.size() == 0) {
+			filterLayout.setVisibility(View.GONE);
+			return;
+		}
+		filterLayout.setVisibility(View.VISIBLE);
+
+		Calendar now = Calendar.getInstance();
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.add(Calendar.DATE, 1);
+
+		for(int i = 0; i < this.list.tagFilters.size() || i < filterLayout.getChildCount(); i++) {
+			if(i < this.list.tagFilters.size()) {
+				TextView tag;
+				if(i < filterLayout.getChildCount()) {
+					tag = (TextView)(filterLayout.getChildAt(i));
+					tag.setVisibility(View.VISIBLE);
+				} else {
+					tag = (TextView)this.inflater.inflate(R.layout.filter_item, filterLayout, false);
+					filterLayout.addView(tag);
+				}
+
+				tag.setText(this.list.tagFilters.get(i));
+
+				int bg_id = 0;
+				switch(this.list.tagFilters.get(i).charAt(0)) {
+					case '+':
+						bg_id = R.color.plus_bg;
+						break;
+					case '@':
+						bg_id = R.color.at_bg;
+						break;
+					case '#':
+						bg_id = R.color.hash_bg;
+						break;
+					case '!':
+						if(this.list.tagFilters.get(i).equals("!0")) {
+							bg_id = R.color.lowpriority_bg;
+						} else {
+							bg_id = R.color.priority_bg;
+						}
+						break;
+					default:
+						Calendar c = Task.matcherToCalendar(Task.re_date.matcher(this.list.tagFilters.get(i)));
+						if(c.before(now)) {
+							bg_id = R.color.date_overdue_bg;
+						} else if(c.before(tomorrow)) {
+							bg_id = R.color.date_soon_bg;
+						} else {
+							bg_id = R.color.date_bg;
+						}
+				}
+
+				tag.setBackgroundColor(this.getResources().getColor(bg_id));
+			} else {
+				filterLayout.getChildAt(i).setVisibility(View.GONE);
+			}
+		}
+	}
+
+	public void filterItems() {
+		list.filter(omnibar.getText().toString());
 		taskAdapter.notifyDataSetChanged();
 	}
+
+	public void addFilter(String filter) {
+		this.list.addTagFilter(filter);
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void addFilter(View view) {
+		this.list.addTagFilter(((TextView)view).getText().toString());
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void removeFilter(String filter) {
+		this.list.removeTagFilter(filter);
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void removeFilter(View view) {
+		this.list.removeTagFilter(((TextView)view).getText().toString());
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+
 
 	public void addItem(View view) {
 		addItem();
@@ -119,7 +220,29 @@ public class Main extends Activity {
 			list.add(source);
 			taskAdapter.notifyDataSetChanged();
 			tagAdapter.notifyDataSetChanged();
+
+			// apparently autoCompleteAdapter.notifyDataSetChanged()
+			// won't update a MultiAutoCompleteTextView list
+			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
+			omnibar.setAdapter(autoCompleteAdapter);
+
 			omnibar.setText("");
+			list.write();
+		}
+	}
+
+	public void editItem(Task source, String newSource) {
+		if(!newSource.isEmpty()) {
+			list.set(list.indexOf(source), newSource);
+			list.filter();
+			taskAdapter.notifyDataSetChanged();
+			tagAdapter.notifyDataSetChanged();
+
+			// apparently autoCompleteAdapter.notifyDataSetChanged()
+			// won't update a MultiAutoCompleteTextView list
+			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.getComplexTagList());
+			omnibar.setAdapter(autoCompleteAdapter);
+
 			list.write();
 		}
 	}
@@ -129,10 +252,16 @@ public class Main extends Activity {
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				list.remove(index);
+				list.remove(list.getFilterList().get(index));
 				list.filter(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
 				tagAdapter.notifyDataSetChanged();
+
+				// apparently autoCompleteAdapter.notifyDataSetChanged()
+				// won't update a MultiAutoCompleteTextView list
+				autoCompleteAdapter = new ArrayAdapter<String>(Main.this, android.R.layout.simple_dropdown_item_1line, Main.this.list.getComplexTagList());
+				omnibar.setAdapter(autoCompleteAdapter);
+
 				list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
