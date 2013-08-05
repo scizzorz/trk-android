@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
@@ -30,7 +29,7 @@ public class Main extends FragmentActivity {
 
 	DrawerLayout drawerLayout = null;
 	LayoutInflater inflater = null;
-	LinearLayout filterLayout = null;
+	FlowLayout filterLayout = null;
 	ListView drawer = null;
 	ListView taskView = null;
 	MultiAutoCompleteTextView omnibar = null;
@@ -48,7 +47,7 @@ public class Main extends FragmentActivity {
 		app = (Trk)getApplicationContext();
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
-		filterLayout = (LinearLayout)findViewById(R.id.filter_layout);
+		filterLayout = (FlowLayout)findViewById(R.id.filter_layout);
 		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
