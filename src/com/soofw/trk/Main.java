@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -88,16 +87,11 @@ public class Main extends FragmentActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
-				String text = ((TextView)view).getText().toString();
 				if(checked) {
-					list.addTagFilter(text);
+					Main.this.addFilter(view);
 				} else {
-					list.removeTagFilter(text);
+					Main.this.removeFilter(view);
 				}
-
-				filterItems(omnibar.getText().toString());
-				taskAdapter.notifyDataSetChanged();
-				updateFilterList();
 			}
 		});
 
@@ -109,7 +103,7 @@ public class Main extends FragmentActivity {
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				filterItems(s.toString());
+				filterItems();
 			}
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -144,17 +138,7 @@ public class Main extends FragmentActivity {
 					tag = (TextView)(filterLayout.getChildAt(i));
 					tag.setVisibility(View.VISIBLE);
 				} else {
-					tag = (TextView)this.inflater.inflate(R.layout.tag_item, filterLayout, false);
-					tag.setClickable(true);
-					tag.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							Main.this.list.removeTagFilter(((TextView)view).getText().toString());
-							Main.this.filterItems(omnibar.getText().toString());
-							Main.this.taskAdapter.notifyDataSetChanged();
-							Main.this.updateFilterList();
-						}
-					});
+					tag = (TextView)this.inflater.inflate(R.layout.filter_item, filterLayout, false);
 					filterLayout.addView(tag);
 				}
 
@@ -196,10 +180,36 @@ public class Main extends FragmentActivity {
 		}
 	}
 
-	public void filterItems(String search) {
-		list.filter(search);
+	public void filterItems() {
+		list.filter(omnibar.getText().toString());
 		taskAdapter.notifyDataSetChanged();
 	}
+
+	public void addFilter(String filter) {
+		this.list.addTagFilter(filter);
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void addFilter(View view) {
+		this.list.addTagFilter(((TextView)view).getText().toString());
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void removeFilter(String filter) {
+		this.list.removeTagFilter(filter);
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+	public void removeFilter(View view) {
+		this.list.removeTagFilter(((TextView)view).getText().toString());
+		this.filterItems();
+		this.taskAdapter.notifyDataSetChanged();
+		this.updateFilterList();
+	}
+
 
 	public void addItem(View view) {
 		addItem();

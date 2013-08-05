@@ -22,7 +22,7 @@ public class ActionDialogFragment extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		this.activity = (Main)this.getActivity();
-		String[] tags = this.task.getTags();
+		final String[] tags = this.task.getTags();
 
 		String[] actions = new String[tags.length + 1];
 		actions[0] = "Edit";
@@ -35,6 +35,8 @@ public class ActionDialogFragment extends DialogFragment {
 				if(which == ActionDialogFragment.EDIT) {
 					new EditDialogFragment(ActionDialogFragment.this.task)
 						.show(ActionDialogFragment.this.activity.getSupportFragmentManager(), "tag!");
+				} else {
+					ActionDialogFragment.this.activity.addFilter(tags[which - 1]);
 				}
 			}
 		});

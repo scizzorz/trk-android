@@ -165,7 +165,9 @@ public class TaskList {
 	}
 
 	public void addTagFilter(String tag) {
-		this.tagFilters.add(tag);
+		if(!this.tagFilters.contains(tag)) {
+			this.tagFilters.add(tag);
+		}
 	}
 	public void removeTagFilter(String tag) {
 		if(this.tagFilters.contains(tag)) {
