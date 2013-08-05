@@ -1,8 +1,9 @@
 package com.soofw.trk;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.animation.Animation;
@@ -10,21 +11,26 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import java.util.Calendar;
 
 public class Main extends FragmentActivity {
 	Trk app = null;
 
 	DrawerLayout drawerLayout = null;
+	LayoutInflater inflater = null;
+	LinearLayout filterLayout = null;
 	ListView drawer = null;
 	ListView taskView = null;
 	MultiAutoCompleteTextView omnibar = null;
@@ -40,11 +46,14 @@ public class Main extends FragmentActivity {
 		setContentView(R.layout.main);
 
 		app = (Trk)getApplicationContext();
-		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
-		taskView = (ListView)findViewById(R.id.task_view);
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
+		filterLayout = (LinearLayout)findViewById(R.id.filter_layout);
+		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
+		taskView = (ListView)findViewById(R.id.task_view);
 
+		filterLayout.setVisibility(View.GONE);
 		taskView.setItemsCanFocus(false);
 
 		this.list = new TaskList(this.app.listFile);
@@ -87,6 +96,7 @@ public class Main extends FragmentActivity {
 
 				filterItems(omnibar.getText().toString());
 				taskAdapter.notifyDataSetChanged();
+				updateFilterList();
 			}
 		});
 
@@ -113,6 +123,66 @@ public class Main extends FragmentActivity {
 				return false;
 			}
 		});
+	}
+
+	public void updateFilterList() {
+		if(this.list.tagFilters.size() == 0) {
+			filterLayout.setVisibility(View.GONE);
+			return;
+		}
+		filterLayout.setVisibility(View.VISIBLE);
+
+		Calendar now = Calendar.getInstance();
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.add(Calendar.DATE, 1);
+
+		for(int i = 0; i < this.list.tagFilters.size() || i < filterLayout.getChildCount(); i++) {
+			if(i < this.list.tagFilters.size()) {
+				TextView tag;
+				if(i < filterLayout.getChildCount()) {
+					tag = (TextView)(filterLayout.getChildAt(i));
+					tag.setVisibility(View.VISIBLE);
+				} else {
+					tag = (TextView)this.inflater.inflate(R.layout.tag_item, filterLayout, false);
+					filterLayout.addView(tag);
+				}
+
+				tag.setText(this.list.tagFilters.get(i));
+
+				int bg_id = 0;
+				switch(this.list.tagFilters.get(i).charAt(0)) {
+					case '+':
+						bg_id = R.color.plus_bg;
+						break;
+					case '@':
+						bg_id = R.color.at_bg;
+						break;
+					case '#':
+						bg_id = R.color.hash_bg;
+						break;
+					case '!':
+						if(this.list.tagFilters.get(i).equals("!0")) {
+							bg_id = R.color.lowpriority_bg;
+						} else {
+							bg_id = R.color.priority_bg;
+						}
+						break;
+					default:
+						Calendar c = Task.matcherToCalendar(Task.re_date.matcher(this.list.tagFilters.get(i)));
+						if(c.before(now)) {
+							bg_id = R.color.date_overdue_bg;
+						} else if(c.before(tomorrow)) {
+							bg_id = R.color.date_soon_bg;
+						} else {
+							bg_id = R.color.date_bg;
+						}
+				}
+
+				tag.setBackgroundColor(this.getResources().getColor(bg_id));
+			} else {
+				filterLayout.getChildAt(i).setVisibility(View.GONE);
+			}
+		}
 	}
 
 	public void filterItems(String search) {
