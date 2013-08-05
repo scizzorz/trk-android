@@ -114,7 +114,6 @@ public class TaskList {
 					case '+':
 					case '@':
 					case '#':
-					case '!':
 						String[] subtags = tags[j].substring(1).split("/");
 						if(!this.complexTagList.contains(tags[j])) {
 							this.complexTagList.add(tags[j]);
