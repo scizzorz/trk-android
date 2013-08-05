@@ -57,7 +57,6 @@ public class TaskList {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(this.file));
 
-			// FIXME sort
 			for(int i = 0; i < this.mainList.size(); i++) {
 				writer.write(this.mainList.get(i).source + "\n");
 			}
@@ -150,7 +149,7 @@ public class TaskList {
 					return two.compareTo(one);
 				}
 
-				return one.compareTo(two);
+				return one.toLowerCase().compareTo(two.toLowerCase());
 			}
 		});
 		Collections.sort(this.complexTagList, new Comparator<String>() {
@@ -160,7 +159,7 @@ public class TaskList {
 					return two.compareTo(one);
 				}
 
-				return one.compareTo(two);
+				return one.toLowerCase().compareTo(two.toLowerCase());
 			}
 		});
 	}
