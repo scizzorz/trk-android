@@ -10,13 +10,13 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import java.util.ArrayList;
 
-public class ActionDialogFragment extends DialogFragment {
+class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
 
 	Main activity;
 	Task task;
 
-	public ActionDialogFragment(Task task) {
+	ActionDialogFragment(Task task) {
 		this.task = task;
 	}
 

@@ -11,11 +11,11 @@ import android.support.v4.app.DialogFragment;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
-public class EditDialogFragment extends DialogFragment {
+class EditDialogFragment extends DialogFragment {
 	Main activity;
 	Task task;
 
-	public EditDialogFragment(Task task) {
+	EditDialogFragment(Task task) {
 		this.task = task;
 	}
 

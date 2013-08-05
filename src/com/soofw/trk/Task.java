@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Task implements Comparable<Task> {
+class Task implements Comparable<Task> {
 	final static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
 	final static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
 	final static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
@@ -20,7 +20,7 @@ public class Task implements Comparable<Task> {
 	Calendar calendar = null;
 	ArrayList<String> tags = new ArrayList<String>();
 
-	public Task(String source) {
+	Task(String source) {
 		this.source = source.trim();
 		this.pretty = this.source;
 
@@ -73,18 +73,18 @@ public class Task implements Comparable<Task> {
 		return this.sortVal.compareTo(other.sortVal);
 	}
 
-	private void addTags(Matcher m, int group) {
+	void addTags(Matcher m, int group) {
 		while(m.find()) {
 			this.tags.add(m.group(group));
 		}
 	}
-	public String[] getTags() {
+	String[] getTags() {
 		String[] temp = new String[this.tags.size()];
 		this.tags.toArray(temp);
 		return temp;
 	}
 
-	public boolean contains(String search) {
+	boolean contains(String search) {
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
 			if(!this.source.toLowerCase().contains(words[i])) {
@@ -93,7 +93,7 @@ public class Task implements Comparable<Task> {
 		}
 		return true;
 	}
-	public boolean matches(String tag) {
+	boolean matches(String tag) {
 		tag = tag.toLowerCase();
 		char type = tag.charAt(0);
 		String content = tag.substring(1);
@@ -116,7 +116,7 @@ public class Task implements Comparable<Task> {
 	}
 
 
-	public static Calendar matcherToCalendar(Matcher m) {
+	static Calendar matcherToCalendar(Matcher m) {
 		if(m.find()) {
 			Calendar temp = Calendar.getInstance();
 
