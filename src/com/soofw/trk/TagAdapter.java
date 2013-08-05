@@ -10,12 +10,12 @@ import android.widget.ListView;
 import java.util.Calendar;
 
 class TagAdapter extends ArrayAdapter<String> {
-	private View view;
-	private Context context;
-	private TaskList list;
+	View view;
+	Context context;
+	TaskList list;
 
-	public TagAdapter(Context context, TaskList list) {
-		super(context, R.layout.drawer_list_item, list.getTagList());
+	TagAdapter(Context context, TaskList list) {
+		super(context, R.layout.drawer_list_item, list.tagList);
 		this.context = context;
 		this.list = list;
 	}

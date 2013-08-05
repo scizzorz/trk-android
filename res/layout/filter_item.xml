@@ -5,7 +5,7 @@
 	android:background="@color/plus_bg"
 	android:clickable="true"
 	android:layout_height="wrap_content"
-	android:layout_marginRight="4dp"
+	android:layout_margin="0dp"
 	android:layout_width="wrap_content"
 	android:onClick="removeFilter"
 	android:paddingBottom="3dp"
