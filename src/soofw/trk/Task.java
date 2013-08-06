@@ -12,10 +12,13 @@ class Task implements Comparable<Task> {
 	final static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
 	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
 	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+	final static Pattern re_done = Pattern.compile("^x\\s+");
 
 	String source = null;
 	String pretty = null;
 	String sortVal = null;
+	String searchVal = null;
+	boolean done = false;
 	int priority = 0;
 	Calendar calendar = null;
 	ArrayList<String> tags = new ArrayList<String>();
@@ -24,6 +27,7 @@ class Task implements Comparable<Task> {
 		this.source = source.trim();
 		this.pretty = this.source;
 
+		this.searchVal = this.pretty = this.pretty.replaceAll(re_done.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_date.pattern(), "");
 		this.sortVal = this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
@@ -31,6 +35,9 @@ class Task implements Comparable<Task> {
 		this.pretty = this.pretty.trim();
 
 		this.sortVal = this.sortVal.toLowerCase();
+
+		// find if it's completed
+		this.done = re_done.matcher(this.source).find();
 
 		// find the priority
 		Matcher m = re_priority.matcher(this.source);
@@ -65,12 +72,21 @@ class Task implements Comparable<Task> {
 		} else if(this.calendar == null && other.calendar != null) {
 			return 1;
 		} else if(this.calendar != null && other.calendar != null) {
-			if(!this.calendar.equals(other.calendar)) {
-				return this.calendar.compareTo(other.calendar);
+			int cmp = this.calendar.compareTo(other.calendar);
+			if(cmp != 0) {
+				return 0;
 			}
 		}
 
 		return this.sortVal.compareTo(other.sortVal);
+	}
+
+	void setDone(boolean done) {
+		this.done = done;
+		this.source = this.source.replaceAll(re_done.pattern(), "");
+		if(this.done) {
+			this.source = "x " + this.source;
+		}
 	}
 
 	void addTags(Matcher m, int group) {
@@ -87,7 +103,7 @@ class Task implements Comparable<Task> {
 	boolean contains(String search) {
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
-			if(!this.source.toLowerCase().contains(words[i])) {
+			if(!this.searchVal.toLowerCase().contains(words[i])) {
 				return false;
 			}
 		}

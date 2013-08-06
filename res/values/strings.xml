@@ -21,6 +21,9 @@
 	<color name="date_soon_fg">#ebeb47</color>
 	<color name="date_soon_bg">#efef8f</color>
 
+	<color name="done">#999999</color>
+	<color name="not_done">#000000</color>
+
 	<color name="omnibar_add_focus">#34B4E3</color>
 
 	<color name="list_bg">#FFF</color>

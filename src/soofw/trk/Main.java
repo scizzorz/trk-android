@@ -63,10 +63,9 @@ public class Main extends FragmentActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
-				if(checked) {
-					((ListView)parent).setItemChecked(position, false);
-					deleteItem(view, position);
-				}
+				Main.this.list.filterList.get(position).setDone(checked);
+				Main.this.taskAdapter.notifyDataSetChanged();
+				Main.this.list.write();
 			}
 		});
 		taskView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
