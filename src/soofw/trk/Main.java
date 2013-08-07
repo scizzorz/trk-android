@@ -3,12 +3,16 @@ package soofw.trk;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
+import android.view.GestureDetector;
+import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,6 +40,16 @@ public class Main extends FragmentActivity {
 	ListView drawer = null;
 	ListView taskView = null;
 	MultiAutoCompleteTextView omnibar = null;
+	GestureDetectorCompat detector = null;
+
+	final static int CONSUMED_IGNORE = 0;
+	final static int CONSUMED_NOTHING = 1;
+	final static int CONSUMED_LONGPRESS = 2;
+	final static int CONSUMED_SWIPE = 3;
+	final static int CONSUMED_RESTORE = 4;
+	View consumedView = null;
+	int consumedPosition = -1;
+	int consumedAction = CONSUMED_IGNORE;
 
 	ArrayAdapter<String> autoCompleteAdapter = null;
 	TagAdapter tagAdapter = null;
@@ -54,6 +68,125 @@ public class Main extends FragmentActivity {
 		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
+		detector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
+			final int UNDEFINED = 0;
+			final int SWIPE = 1;
+			final int SCROLL = 2;
+
+			float SLOP_DELTA = ViewConfiguration.get(Main.this).getScaledTouchSlop() * 2;
+			float SWIPE_DELTA = 250.0f;
+			int mode = UNDEFINED;
+			int offset = 0;
+			View item = null;
+			int position = -1;
+
+			private void restore() {
+				if(this.item != null) {
+					this.item.setAlpha(1.0f);
+					this.item.offsetLeftAndRight(-this.offset);
+				}
+			}
+
+			@Override
+			public boolean onDown(MotionEvent event) {
+				this.mode = UNDEFINED;
+				this.offset = 0;
+				this.item = null;
+				Main.this.consumedAction = Main.CONSUMED_IGNORE;
+				Main.this.consumedPosition = -1;
+				Main.this.consumedView = null;
+
+				this.position = Main.this.taskView.pointToPosition((int)event.getX(), (int)event.getY());
+				if(this.position > -1) {
+					Log.d("TRK","Down " + this.position);
+					this.item = (View)(Main.this.taskView.getChildAt(this.position - Main.this.taskView.getFirstVisiblePosition()));
+					Main.this.consumedPosition = this.position;
+					Main.this.consumedView = this.item;
+				} else {
+					Log.d("TRK", "Down");
+				}
+				return true;
+			}
+
+			@Override
+			public boolean onScroll(MotionEvent event1, MotionEvent event2, float dxp, float dyp) {
+				float dx = event2.getX() - event1.getX();
+				float dy = event2.getY() - event1.getY();
+				switch(this.mode) {
+					case UNDEFINED:
+						Log.d("TRK", "Deciding");
+						Main.this.consumedAction = Main.CONSUMED_NOTHING;
+						if(Math.sqrt(dx * dx + dy * dy) >= SLOP_DELTA) {
+							if(Math.abs(dx) >= Math.abs(dy)) {
+								this.mode = SWIPE;
+							} else {
+								this.mode = SCROLL;
+								Main.this.consumedAction = Main.CONSUMED_IGNORE;
+							}
+						}
+						break;
+					case SWIPE:
+						if(this.item != null) {
+							Log.d("TRK", "Swipe " + this.position + ": " + this.offset);
+							this.item.offsetLeftAndRight(-this.offset);
+							this.offset = (int)dx;
+							this.item.offsetLeftAndRight(this.offset);
+							float temp = 1.0f - (float)Math.abs(this.offset) / (float)SWIPE_DELTA;
+							this.item.setAlpha(Math.max(temp, 0.3f));
+							if(Math.abs(this.offset) >= SWIPE_DELTA) {
+								Main.this.consumedAction = Main.CONSUMED_SWIPE;
+							} else {
+								Main.this.consumedAction = Main.CONSUMED_RESTORE;
+							}
+						}
+						return true;
+					case SCROLL:
+						Log.d("TRK", "Scroll");
+						break;
+				}
+				return false;
+			}
+
+			@Override
+			public boolean onSingleTapUp(MotionEvent event) {
+				if(this.position > -1) {
+					Log.d("TRK", "Tap " + this.position);
+					boolean checked = Main.this.taskView.isItemChecked(this.position);
+					Main.this.list.filterList.get(this.position).setDone(!checked);
+					Main.this.taskAdapter.notifyDataSetChanged();
+					Main.this.list.write();
+				}
+				return true;
+			}
+			@Override
+			public boolean onDoubleTap(MotionEvent event) {
+				if(this.position > -1) {
+					Log.d("TRK", "DTap " + this.position);
+					boolean checked = Main.this.taskView.isItemChecked(this.position);
+					Main.this.list.filterList.get(this.position).setDone(!checked);
+					Main.this.taskAdapter.notifyDataSetChanged();
+					Main.this.list.write();
+				}
+				return true;
+			}
+			@Override
+			public boolean onDoubleTapEvent(MotionEvent event) {
+				return true;
+			}
+
+			@Override
+			public void onLongPress(MotionEvent event) {
+				Main.this.consumedAction = Main.CONSUMED_LONGPRESS;
+				if(this.position > -1) {
+					Log.d("TRK", "Long press " + this.position);
+					Main.this.taskView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+					new ActionDialogFragment(Main.this.list.filterList.get(this.position))
+						.show(Main.this.getSupportFragmentManager(), "tag?");
+				}
+			}
+		});
+
+
 		filterLayout.setVisibility(View.GONE);
 		taskView.setItemsCanFocus(false);
 
@@ -62,104 +195,24 @@ public class Main extends FragmentActivity {
 
 		taskAdapter = new TaskAdapter(this, this.list.filterList);
 		taskView.setAdapter(taskAdapter);
-		taskView.setLongClickable(true);
-		taskView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				boolean checked = ((ListView)parent).isItemChecked(position);
-				Main.this.list.filterList.get(position).setDone(checked);
-				Main.this.taskAdapter.notifyDataSetChanged();
-				Main.this.list.write();
-			}
-		});
-		taskView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment(list.filterList.get(position))
-					.show(Main.this.getSupportFragmentManager(), "tag?");
-				return true;
-			}
-		});
+		taskView.setLongClickable(false);
 		taskView.setOnTouchListener(new OnTouchListener() {
-			static final int UNDEFINED = 0;
-			static final int SCROLL = 1;
-			static final int SWIPE = 2;
-
-			float MODE_DELTA = ViewConfiguration.get(Main.this).getScaledTouchSlop() * 2;
-			float SWIPE_DELTA = 250.0f;
-
-			private MotionEvent start = null;
-			private int offset = 0;
-			private int position = -1;
-			private View item = null;
-			private String label = null;
-			private int mode = UNDEFINED;
-
-			private void restore() {
-				this.item.setAlpha(1.0f);
-				this.item.offsetLeftAndRight(-this.offset);
-			}
-
 			@Override
 			public boolean onTouch(View view, MotionEvent event) {
-				switch(event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						ListView temp = (ListView)view;
-						this.start = MotionEvent.obtain(event);
-						this.position = temp.pointToPosition((int)event.getX(), (int)event.getY());
-						if(this.position == -1) {
-							this.mode = SCROLL;
-						} else {
-							this.item = (View)(temp.getChildAt(this.position - temp.getFirstVisiblePosition()));
-							this.label = taskAdapter.getItem(this.position).toString();
-							this.offset = 0;
-							this.mode = UNDEFINED;
+				if(event.getActionMasked() == MotionEvent.ACTION_UP) {
+					switch(Main.this.consumedAction) {
+						case Main.CONSUMED_NOTHING:
+						case Main.CONSUMED_LONGPRESS:
 							return true;
-						}
-						break;
-
-					case MotionEvent.ACTION_UP:
-						if(this.mode == SWIPE) {
-							if(Math.abs(event.getX() - this.start.getX()) >= SWIPE_DELTA) {
-								Toast.makeText(Main.this, "Dismiss '" + this.label + "'", Toast.LENGTH_SHORT).show();
-								//((Main)TaskAdapter.this.context).deleteItem(this.item, this.position);
-							} else {
-								Toast.makeText(Main.this, "Restore '" + this.label + "'", Toast.LENGTH_SHORT).show();
-								this.restore();
-							}
+						case Main.CONSUMED_SWIPE:
+							Log.d("TRK", "Dismiss " + Main.this.consumedPosition);
 							return true;
-						}
-						break;
-
-					case MotionEvent.ACTION_CANCEL:
-						if(this.mode == SWIPE) {
-							Toast.makeText(Main.this, "Cancel '" + this.label + "'", Toast.LENGTH_SHORT).show();
-							this.restore();
+						case Main.CONSUMED_RESTORE:
+							Log.d("TRK", "Restore " + Main.this.consumedPosition);
 							return true;
-						}
-						break;
-
-					case MotionEvent.ACTION_MOVE:
-						float dx = event.getX() - this.start.getX();
-						float dy = event.getY() - this.start.getY();
-						switch(this.mode) {
-							case UNDEFINED:
-								if(Math.abs(dx) >= MODE_DELTA) {
-									this.mode = SWIPE;
-								} else if(Math.abs(dy) >= MODE_DELTA) {
-									this.mode = SCROLL;
-								}
-								return false;
-							case SWIPE:
-								this.item.offsetLeftAndRight(-this.offset);
-								this.offset = (int)dx;
-								this.item.offsetLeftAndRight(this.offset);
-								this.item.setAlpha(1.0f - (float)Math.abs(this.offset) / (float)SWIPE_DELTA);
-								return true;
-						}
-						return false;
+					}
 				}
-				return false;
+				return Main.this.detector.onTouchEvent(event);
 			}
 		});
 
