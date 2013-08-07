@@ -42,7 +42,8 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		if(this.view == null) {
 			this.view = inflater.inflate(R.layout.list_item, null);
 		}
-		this.view.setAlpha(1.0f);
+		this.view.setAlpha(1);
+		this.view.setTranslationX(0);
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);

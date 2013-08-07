@@ -74,23 +74,21 @@ public class Main extends FragmentActivity {
 			final int SCROLL = 2;
 
 			float SLOP_DELTA = ViewConfiguration.get(Main.this).getScaledTouchSlop() * 2;
-			float SWIPE_DELTA = 250.0f;
+			float SWIPE_DELTA = 360;
 			int mode = UNDEFINED;
-			int offset = 0;
 			View item = null;
 			int position = -1;
 
 			private void restore() {
 				if(this.item != null) {
-					this.item.setAlpha(1.0f);
-					this.item.offsetLeftAndRight(-this.offset);
+					this.item.setAlpha(1);
+					this.item.setTranslationX(0);
 				}
 			}
 
 			@Override
 			public boolean onDown(MotionEvent event) {
 				this.mode = UNDEFINED;
-				this.offset = 0;
 				this.item = null;
 				Main.this.consumedAction = Main.CONSUMED_IGNORE;
 				Main.this.consumedPosition = -1;
@@ -118,8 +116,10 @@ public class Main extends FragmentActivity {
 						Main.this.consumedAction = Main.CONSUMED_NOTHING;
 						if(Math.sqrt(dx * dx + dy * dy) >= SLOP_DELTA) {
 							if(Math.abs(dx) >= Math.abs(dy)) {
+								Log.d("TRK", "Enter SWIPE");
 								this.mode = SWIPE;
 							} else {
+								Log.d("TRK", "Enter SCROLL");
 								this.mode = SCROLL;
 								Main.this.consumedAction = Main.CONSUMED_IGNORE;
 							}
@@ -127,13 +127,13 @@ public class Main extends FragmentActivity {
 						break;
 					case SWIPE:
 						if(this.item != null) {
-							Log.d("TRK", "Swipe " + this.position + ": " + this.offset);
-							this.item.offsetLeftAndRight(-this.offset);
-							this.offset = (int)dx;
-							this.item.offsetLeftAndRight(this.offset);
-							float temp = 1.0f - (float)Math.abs(this.offset) / (float)SWIPE_DELTA;
-							this.item.setAlpha(Math.max(temp, 0.3f));
-							if(Math.abs(this.offset) >= SWIPE_DELTA) {
+							Log.d("TRK", "Swipe " + this.position + ": " + dx);
+							this.item.setTranslationX(dx);
+
+							float newAlpha = 1 - Math.abs(dx) / SWIPE_DELTA;
+							this.item.setAlpha(Math.max(newAlpha, 0.3f));
+
+							if(Math.abs(dx) >= SWIPE_DELTA) {
 								Main.this.consumedAction = Main.CONSUMED_SWIPE;
 							} else {
 								Main.this.consumedAction = Main.CONSUMED_RESTORE;
@@ -206,9 +206,11 @@ public class Main extends FragmentActivity {
 							return true;
 						case Main.CONSUMED_SWIPE:
 							Log.d("TRK", "Dismiss " + Main.this.consumedPosition);
+							Main.this.deleteItem(Main.this.consumedView, Main.this.consumedPosition);
 							return true;
 						case Main.CONSUMED_RESTORE:
 							Log.d("TRK", "Restore " + Main.this.consumedPosition);
+							Main.this.restoreItem(Main.this.consumedView, Main.this.consumedPosition);
 							return true;
 					}
 				}
@@ -363,19 +365,20 @@ public class Main extends FragmentActivity {
 	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
 			this.list.set(list.indexOf(source), newSource);
-			this.list.filter();
 			this.notifyAdapters();
 			this.list.write();
 		}
 	}
 
-	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
+	// Many thanks to http://stackoverflow.com/a/14306588
+	// and https://github.com/paraches/ListViewCellDeleteAnimation
 	void deleteItem(final View view, final int index) {
+		final int initialHeight = view.getMeasuredHeight();
+
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
 				Main.this.list.remove(list.filterList.get(index));
-				Main.this.list.filter(omnibar.getText().toString());
 				Main.this.notifyAdapters();
 				Main.this.list.write();
 			}
@@ -383,33 +386,48 @@ public class Main extends FragmentActivity {
 			@Override public void onAnimationStart(Animation anim) {}
 		};
 
-		collapseView(view, al);
-	}
-
-	void collapseView(final View view, final AnimationListener al) {
-		final int initialHeight = view.getMeasuredHeight();
-
 		Animation anim = new Animation() {
 			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				if(interpolatedTime == 1) {
+			protected void applyTransformation(float time, Transformation t) {
+				if(time == 1) {
 					view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 					view.requestLayout();
 				} else {
-					view.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+					view.getLayoutParams().height = initialHeight - (int)(initialHeight * time);
 					view.requestLayout();
 				}
 			}
-
 			@Override
 			public boolean willChangeBounds() {
 				return true;
 			}
 		};
 
-		if(al != null) {
-			anim.setAnimationListener(al);
-		}
+		anim.setAnimationListener(al);
+		anim.setDuration(200);
+		view.startAnimation(anim);
+	}
+	void restoreItem(final View view, final int index) {
+		final float initialX = view.getTranslationX();
+		final float initialAlpha = view.getAlpha();
+
+		Animation anim = new Animation() {
+			@Override
+			protected void applyTransformation(float time, Transformation t) {
+				if(time == 1) {
+					view.setAlpha(1);
+					view.setTranslationX(0);
+				} else {
+					view.setAlpha(initialAlpha + (1 - initialAlpha) * time);
+					view.setTranslationX(initialX * (1 - time));
+				}
+			}
+			@Override
+			public boolean willChangeBounds() {
+				return true;
+			}
+		};
+
 		anim.setDuration(200);
 		view.startAnimation(anim);
 	}
