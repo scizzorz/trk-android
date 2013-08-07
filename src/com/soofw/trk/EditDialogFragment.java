@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
+import com.soofw.util.SpaceTokenizer;
 
 class EditDialogFragment extends DialogFragment {
 	Main activity;

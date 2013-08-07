@@ -23,6 +23,8 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import java.util.Calendar;
+import com.soofw.util.FlowLayout;
+import com.soofw.util.SpaceTokenizer;
 
 public class Main extends FragmentActivity {
 	Trk app = null;

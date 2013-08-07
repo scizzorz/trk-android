@@ -40,7 +40,7 @@
 				style="?android:attr/borderlessButtonStyle"
 				/>
 		</RelativeLayout>
-		<com.soofw.trk.FlowLayout
+		<com.soofw.util.FlowLayout
 			android:id="@+id/filter_layout"
 			android:background="@android:color/transparent"
 			android:layout_height="wrap_content"

@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package com.soofw.util;
 
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -8,8 +8,7 @@ import android.widget.MultiAutoCompleteTextView.Tokenizer;
 /**
  * This class is derived from the Android MultiAutoCompleteTextView.CommaTokenizer class.
  */
-class SpaceTokenizer implements Tokenizer {
-
+public class SpaceTokenizer implements Tokenizer {
 	public int findTokenStart(CharSequence text, int cursor) {
 		int i = cursor;
 
