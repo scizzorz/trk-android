@@ -15,13 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import java.util.Calendar;
 import soofw.util.FlowLayout;
 import soofw.util.SpaceTokenizer;
@@ -62,7 +59,7 @@ public class Main extends FragmentActivity {
 		taskAdapter = new TaskAdapter(this, this.list.filterList);
 		taskView.setAdapter(taskAdapter);
 		taskView.setLongClickable(true);
-		taskView.setOnItemClickListener(new OnItemClickListener() {
+		taskView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
@@ -72,7 +69,7 @@ public class Main extends FragmentActivity {
 				}
 			}
 		});
-		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
+		taskView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				new ActionDialogFragment(list.filterList.get(position))
@@ -83,7 +80,7 @@ public class Main extends FragmentActivity {
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
-		drawer.setOnItemClickListener(new OnItemClickListener() {
+		drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
@@ -108,7 +105,7 @@ public class Main extends FragmentActivity {
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		});
-		omnibar.setOnEditorActionListener(new OnEditorActionListener() {
+		omnibar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
 				if(actionId == EditorInfo.IME_ACTION_SEND) {
