@@ -12,8 +12,10 @@ import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -37,6 +39,8 @@ public class Main extends FragmentActivity {
 	TagAdapter tagAdapter = null;
 	TaskAdapter taskAdapter = null;
 	TaskList list = null;
+
+	boolean scrollEnabled = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,17 @@ public class Main extends FragmentActivity {
 				return true;
 			}
 		});
+		/*
+		taskView.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent event) {
+				if(Main.this.scrollEnabled) {
+					return false;
+				}
+				return (event.getAction() == MotionEvent.ACTION_MOVE);
+			}
+		});
+		*/
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
@@ -228,6 +243,11 @@ public class Main extends FragmentActivity {
 			this.notifyAdapters();
 			this.list.write();
 		}
+	}
+
+	void scroll(boolean enabled) {
+		//this.scrollEnabled = enabled;
+		this.taskView.setEnabled(enabled);
 	}
 
 	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
