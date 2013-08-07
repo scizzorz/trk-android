@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -23,8 +23,8 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import java.util.Calendar;
-import com.soofw.util.FlowLayout;
-import com.soofw.util.SpaceTokenizer;
+import soofw.util.FlowLayout;
+import soofw.util.SpaceTokenizer;
 
 public class Main extends FragmentActivity {
 	Trk app = null;

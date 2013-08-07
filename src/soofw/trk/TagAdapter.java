@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.content.Context;
 import android.view.LayoutInflater;

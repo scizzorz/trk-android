@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import java.util.ArrayList;
 import java.util.Calendar;

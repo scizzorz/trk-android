@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.util.Log; // FIXME
 import java.io.BufferedReader;

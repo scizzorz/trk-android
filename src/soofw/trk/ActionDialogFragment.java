@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

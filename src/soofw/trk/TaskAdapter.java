@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
-import com.soofw.util.FlowLayout;
+import soofw.util.FlowLayout;
 import java.util.ArrayList;
 import java.util.Calendar;
 

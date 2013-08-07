@@ -1,4 +1,4 @@
-package com.soofw.util;
+package soofw.util;
 
 import android.text.SpannableString;
 import android.text.Spanned;
