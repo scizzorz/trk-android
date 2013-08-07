@@ -43,56 +43,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			this.view = inflater.inflate(R.layout.list_item, null);
 		}
 		this.view.setAlpha(1.0f);
-		this.view.setOnTouchListener(new OnTouchListener() {
-			static final float SWIPE_DELTA = 250;
-
-			private float historicX = Float.NaN;
-			private float historicY = Float.NaN;
-			private int cumulativeOffsetX = 0;
-
-			private void restore(View view) {
-				view.offsetLeftAndRight(-this.cumulativeOffsetX);
-				view.setAlpha(1.0f);
-			}
-
-
-			@Override
-			public boolean onTouch(View view, MotionEvent event) {
-				switch(event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						this.historicX = event.getX();
-						this.historicY = event.getY();
-						this.cumulativeOffsetX = 0;
-						((Main)TaskAdapter.this.context).scroll(false);
-						return true;
-
-					case MotionEvent.ACTION_UP:
-						if(Math.abs(this.cumulativeOffsetX) >= SWIPE_DELTA) {
-							Log.d("TRK", "Dismiss '" + label + "'");
-							((Main)TaskAdapter.this.context).deleteItem(view, position);
-						} else {
-							Log.d("TRK", "Restore '" + label + "'");
-							this.restore(view);
-						}
-						((Main)TaskAdapter.this.context).scroll(true);
-						return true;
-
-					case MotionEvent.ACTION_CANCEL:
-						Log.d("TRK", "Cancel '" + label + "'");
-						this.restore(view);
-						((Main)TaskAdapter.this.context).scroll(true);
-						return true;
-
-					case MotionEvent.ACTION_MOVE:
-						view.offsetLeftAndRight(-this.cumulativeOffsetX);
-						this.cumulativeOffsetX += (int)(event.getX() - this.historicX);
-						view.offsetLeftAndRight(this.cumulativeOffsetX);
-						view.setAlpha(1.0f - Math.abs(this.cumulativeOffsetX) / SWIPE_DELTA);
-						return true;
-				}
-				return false;
-			}
-		});
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);

@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
@@ -21,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.util.Calendar;
 import soofw.util.FlowLayout;
 import soofw.util.SpaceTokenizer;
@@ -39,8 +41,6 @@ public class Main extends FragmentActivity {
 	TagAdapter tagAdapter = null;
 	TaskAdapter taskAdapter = null;
 	TaskList list = null;
-
-	boolean scrollEnabled = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,17 +80,88 @@ public class Main extends FragmentActivity {
 				return true;
 			}
 		});
-		/*
 		taskView.setOnTouchListener(new OnTouchListener() {
+			static final int UNDEFINED = 0;
+			static final int SCROLL = 1;
+			static final int SWIPE = 2;
+
+			float MODE_DELTA = ViewConfiguration.get(Main.this).getScaledTouchSlop() * 2;
+			float SWIPE_DELTA = 250.0f;
+
+			private MotionEvent start = null;
+			private int offset = 0;
+			private int position = -1;
+			private View item = null;
+			private String label = null;
+			private int mode = UNDEFINED;
+
+			private void restore() {
+				this.item.setAlpha(1.0f);
+				this.item.offsetLeftAndRight(-this.offset);
+			}
+
 			@Override
 			public boolean onTouch(View view, MotionEvent event) {
-				if(Main.this.scrollEnabled) {
-					return false;
+				switch(event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						ListView temp = (ListView)view;
+						this.start = MotionEvent.obtain(event);
+						this.position = temp.pointToPosition((int)event.getX(), (int)event.getY());
+						if(this.position == -1) {
+							this.mode = SCROLL;
+						} else {
+							this.item = (View)(temp.getChildAt(this.position - temp.getFirstVisiblePosition()));
+							this.label = taskAdapter.getItem(this.position).toString();
+							this.offset = 0;
+							this.mode = UNDEFINED;
+							return true;
+						}
+						break;
+
+					case MotionEvent.ACTION_UP:
+						if(this.mode == SWIPE) {
+							if(Math.abs(event.getX() - this.start.getX()) >= SWIPE_DELTA) {
+								Toast.makeText(Main.this, "Dismiss '" + this.label + "'", Toast.LENGTH_SHORT).show();
+								//((Main)TaskAdapter.this.context).deleteItem(this.item, this.position);
+							} else {
+								Toast.makeText(Main.this, "Restore '" + this.label + "'", Toast.LENGTH_SHORT).show();
+								this.restore();
+							}
+							return true;
+						}
+						break;
+
+					case MotionEvent.ACTION_CANCEL:
+						if(this.mode == SWIPE) {
+							Toast.makeText(Main.this, "Cancel '" + this.label + "'", Toast.LENGTH_SHORT).show();
+							this.restore();
+							return true;
+						}
+						break;
+
+					case MotionEvent.ACTION_MOVE:
+						float dx = event.getX() - this.start.getX();
+						float dy = event.getY() - this.start.getY();
+						switch(this.mode) {
+							case UNDEFINED:
+								if(Math.abs(dx) >= MODE_DELTA) {
+									this.mode = SWIPE;
+								} else if(Math.abs(dy) >= MODE_DELTA) {
+									this.mode = SCROLL;
+								}
+								return false;
+							case SWIPE:
+								this.item.offsetLeftAndRight(-this.offset);
+								this.offset = (int)dx;
+								this.item.offsetLeftAndRight(this.offset);
+								this.item.setAlpha(1.0f - (float)Math.abs(this.offset) / (float)SWIPE_DELTA);
+								return true;
+						}
+						return false;
 				}
-				return (event.getAction() == MotionEvent.ACTION_MOVE);
+				return false;
 			}
 		});
-		*/
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
@@ -243,11 +314,6 @@ public class Main extends FragmentActivity {
 			this.notifyAdapters();
 			this.list.write();
 		}
-	}
-
-	void scroll(boolean enabled) {
-		//this.scrollEnabled = enabled;
-		this.taskView.setEnabled(enabled);
 	}
 
 	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
