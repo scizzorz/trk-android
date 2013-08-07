@@ -51,7 +51,6 @@ public class Main extends FragmentActivity {
 		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
-
 		filterLayout.setVisibility(View.GONE);
 		taskView.setItemsCanFocus(false);
 
@@ -102,7 +101,7 @@ public class Main extends FragmentActivity {
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				filterItems();
+				notifyAdapters();
 			}
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -119,7 +118,7 @@ public class Main extends FragmentActivity {
 		});
 	}
 
-	void updateFilterList() {
+	void updateFilters() {
 		if(this.list.tagFilters.size() == 0) {
 			filterLayout.setVisibility(View.GONE);
 			return;
@@ -178,35 +177,36 @@ public class Main extends FragmentActivity {
 			}
 		}
 	}
+	void notifyAdapters() {
+		this.list.filter(omnibar.getText().toString());
+		this.taskAdapter.notifyDataSetChanged();
+		this.tagAdapter.notifyDataSetChanged();
 
-	void filterItems() {
-		list.filter(omnibar.getText().toString());
-		taskAdapter.notifyDataSetChanged();
+		// apparently autoCompleteAdapter.notifyDataSetChanged()
+		// won't update a MultiAutoCompleteTextView list
+		this.autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
+		this.omnibar.setAdapter(autoCompleteAdapter);
 	}
 
 	void addFilter(String filter) {
 		this.list.addTagFilter(filter);
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	public void addFilter(View view) {
 		this.list.addTagFilter(((TextView)view).getText().toString());
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	void removeFilter(String filter) {
 		this.list.removeTagFilter(filter);
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	public void removeFilter(View view) {
 		this.list.removeTagFilter(((TextView)view).getText().toString());
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 
 
@@ -216,33 +216,19 @@ public class Main extends FragmentActivity {
 	void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
-			list.add(source);
-			taskAdapter.notifyDataSetChanged();
-			tagAdapter.notifyDataSetChanged();
-
-			// apparently autoCompleteAdapter.notifyDataSetChanged()
-			// won't update a MultiAutoCompleteTextView list
-			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
-			omnibar.setAdapter(autoCompleteAdapter);
-
-			omnibar.setText("");
-			list.write();
+			this.list.add(source);
+			this.omnibar.setText("");
+			this.notifyAdapters();
+			this.list.write();
 		}
 	}
 
 	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
-			list.set(list.indexOf(source), newSource);
-			list.filter();
-			taskAdapter.notifyDataSetChanged();
-			tagAdapter.notifyDataSetChanged();
-
-			// apparently autoCompleteAdapter.notifyDataSetChanged()
-			// won't update a MultiAutoCompleteTextView list
-			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
-			omnibar.setAdapter(autoCompleteAdapter);
-
-			list.write();
+			this.list.set(list.indexOf(source), newSource);
+			this.list.filter();
+			this.notifyAdapters();
+			this.list.write();
 		}
 	}
 
@@ -251,17 +237,10 @@ public class Main extends FragmentActivity {
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				list.remove(list.filterList.get(index));
-				list.filter(omnibar.getText().toString());
-				taskAdapter.notifyDataSetChanged();
-				tagAdapter.notifyDataSetChanged();
-
-				// apparently autoCompleteAdapter.notifyDataSetChanged()
-				// won't update a MultiAutoCompleteTextView list
-				autoCompleteAdapter = new ArrayAdapter<String>(Main.this, android.R.layout.simple_dropdown_item_1line, Main.this.list.complexTagList);
-				omnibar.setAdapter(autoCompleteAdapter);
-
-				list.write();
+				Main.this.list.remove(list.filterList.get(index));
+				Main.this.list.filter(omnibar.getText().toString());
+				Main.this.notifyAdapters();
+				Main.this.list.write();
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
 			@Override public void onAnimationStart(Animation anim) {}
