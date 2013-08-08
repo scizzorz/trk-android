@@ -3,7 +3,6 @@ package soofw.trk;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,7 +10,6 @@ import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
-import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
@@ -20,7 +18,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -40,16 +37,6 @@ public class Main extends FragmentActivity {
 	ListView drawer = null;
 	ListView taskView = null;
 	MultiAutoCompleteTextView omnibar = null;
-	GestureDetectorCompat detector = null;
-
-	final static int CONSUMED_IGNORE = 0;
-	final static int CONSUMED_NOTHING = 1;
-	final static int CONSUMED_LONGPRESS = 2;
-	final static int CONSUMED_SWIPE = 3;
-	final static int CONSUMED_RESTORE = 4;
-	View consumedView = null;
-	int consumedPosition = -1;
-	int consumedAction = CONSUMED_IGNORE;
 
 	ArrayAdapter<String> autoCompleteAdapter = null;
 	TagAdapter tagAdapter = null;
@@ -68,162 +55,16 @@ public class Main extends FragmentActivity {
 		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
-		detector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
-			final int UNDEFINED = 0;
-			final int SWIPE = 1;
-			final int SCROLL = 2;
-
-			float SLOP_DELTA = ViewConfiguration.get(Main.this).getScaledTouchSlop() * 2;
-			float SWIPE_DELTA = 360;
-			int mode = UNDEFINED;
-			View item = null;
-			int position = -1;
-
-			@Override
-			public boolean onDown(MotionEvent event) {
-				this.mode = UNDEFINED;
-				this.item = null;
-				Main.this.consumedAction = Main.CONSUMED_IGNORE;
-				Main.this.consumedPosition = -1;
-				Main.this.consumedView = null;
-
-				this.position = Main.this.taskView.pointToPosition((int)event.getX(), (int)event.getY());
-				if(this.position > -1) {
-					Log.d("TRK","Down " + this.position);
-					this.item = (View)(Main.this.taskView.getChildAt(this.position - Main.this.taskView.getFirstVisiblePosition()));
-					Main.this.consumedPosition = this.position;
-					Main.this.consumedView = this.item;
-
-					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg_focus));
-				} else {
-					Log.d("TRK", "Down");
-				}
-				return true;
-			}
-
-			@Override
-			public boolean onScroll(MotionEvent event1, MotionEvent event2, float dxp, float dyp) {
-				float dx = event2.getX() - event1.getX();
-				float dy = event2.getY() - event1.getY();
-				switch(this.mode) {
-					case UNDEFINED:
-						Log.d("TRK", "Deciding");
-						Main.this.consumedAction = Main.CONSUMED_NOTHING;
-						if(Math.sqrt(dx * dx + dy * dy) >= SLOP_DELTA) {
-							if(Math.abs(dx) >= Math.abs(dy)) {
-								Log.d("TRK", "Enter SWIPE");
-								this.mode = SWIPE;
-							} else {
-								Log.d("TRK", "Enter SCROLL");
-								this.mode = SCROLL;
-								Main.this.consumedAction = Main.CONSUMED_IGNORE;
-							}
-							if(this.item != null) {
-								this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
-							}
-						}
-						break;
-					case SWIPE:
-						if(this.item != null) {
-							Log.d("TRK", "Swipe " + this.position + ": " + dx);
-							this.item.setTranslationX(dx);
-
-							float newAlpha = 1 - Math.abs(dx) / SWIPE_DELTA;
-							this.item.setAlpha(Math.max(newAlpha, 0.3f));
-
-							if(Math.abs(dx) >= SWIPE_DELTA) {
-								Main.this.consumedAction = Main.CONSUMED_SWIPE;
-							} else {
-								Main.this.consumedAction = Main.CONSUMED_RESTORE;
-							}
-						}
-						return true;
-					case SCROLL:
-						Log.d("TRK", "Scroll");
-						break;
-				}
-				return false;
-			}
-
-			@Override
-			public boolean onSingleTapUp(MotionEvent event) {
-				if(this.position > -1) {
-					Log.d("TRK", "Tap " + this.position);
-					boolean checked = Main.this.taskView.isItemChecked(this.position);
-					Main.this.list.filterList.get(this.position).setDone(!checked);
-					Main.this.taskAdapter.notifyDataSetChanged();
-					Main.this.list.write();
-				}
-				if(this.item != null) {
-					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
-				}
-				return true;
-			}
-			@Override
-			public boolean onDoubleTap(MotionEvent event) {
-				if(this.position > -1) {
-					Log.d("TRK", "DTap " + this.position);
-					boolean checked = Main.this.taskView.isItemChecked(this.position);
-					Main.this.list.filterList.get(this.position).setDone(!checked);
-					Main.this.taskAdapter.notifyDataSetChanged();
-					Main.this.list.write();
-				}
-				return true;
-			}
-			@Override
-			public boolean onDoubleTapEvent(MotionEvent event) {
-				return true;
-			}
-
-			@Override
-			public void onLongPress(MotionEvent event) {
-				Main.this.consumedAction = Main.CONSUMED_LONGPRESS;
-				if(this.position > -1) {
-					Log.d("TRK", "Long press " + this.position);
-					Main.this.taskView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-					new ActionDialogFragment(Main.this.list.filterList.get(this.position))
-						.show(Main.this.getSupportFragmentManager(), "tag?");
-				}
-				if(this.item != null) {
-					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
-				}
-			}
-		});
-
 
 		filterLayout.setVisibility(View.GONE);
-		taskView.setItemsCanFocus(false);
 
 		this.list = new TaskList(this.app.listFile);
 		this.list.read();
 
 		taskAdapter = new TaskAdapter(this, this.list.filterList);
 		taskView.setAdapter(taskAdapter);
+		taskView.setItemsCanFocus(false);
 		taskView.setLongClickable(false);
-		taskView.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent event) {
-				if(event.getActionMasked() == MotionEvent.ACTION_UP) {
-					if(Main.this.consumedView != null) {
-						Main.this.consumedView.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
-					}
-					switch(Main.this.consumedAction) {
-						case Main.CONSUMED_NOTHING:
-						case Main.CONSUMED_LONGPRESS:
-							return true;
-						case Main.CONSUMED_SWIPE:
-							Log.d("TRK", "Dismiss " + Main.this.consumedPosition);
-							Main.this.deleteItem(Main.this.consumedView, Main.this.consumedPosition);
-							return true;
-						case Main.CONSUMED_RESTORE:
-							Log.d("TRK", "Restore " + Main.this.consumedPosition);
-							Main.this.restoreItem(Main.this.consumedView, Main.this.consumedPosition);
-							return true;
-					}
-				}
-				return Main.this.detector.onTouchEvent(event);
-			}
-		});
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
@@ -388,6 +229,7 @@ public class Main extends FragmentActivity {
 				Main.this.list.remove(list.filterList.get(index));
 				Main.this.notifyAdapters();
 				Main.this.list.write();
+				Main.this.taskView.setEnabled(true);
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
 			@Override public void onAnimationStart(Animation anim) {}
@@ -411,30 +253,6 @@ public class Main extends FragmentActivity {
 		};
 
 		anim.setAnimationListener(al);
-		anim.setDuration(200);
-		view.startAnimation(anim);
-	}
-	void restoreItem(final View view, final int index) {
-		final float initialX = view.getTranslationX();
-		final float initialAlpha = view.getAlpha();
-
-		Animation anim = new Animation() {
-			@Override
-			protected void applyTransformation(float time, Transformation t) {
-				if(time == 1) {
-					view.setAlpha(1);
-					view.setTranslationX(0);
-				} else {
-					view.setAlpha(initialAlpha + (1 - initialAlpha) * time);
-					view.setTranslationX(initialX * (1 - time));
-				}
-			}
-			@Override
-			public boolean willChangeBounds() {
-				return true;
-			}
-		};
-
 		anim.setDuration(200);
 		view.startAnimation(anim);
 	}

@@ -3,7 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:flow="http://schemas.android.com/apk/res/soofw.trk"
 	android:id="@+id/layout"
-	android:background="@color/list_item_bg"
+	android:background="@drawable/list_bg_row"
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent"
 	android:minHeight="?android:attr/listPreferredItemHeightSmall"

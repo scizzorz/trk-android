@@ -1,34 +1,40 @@
 package soofw.trk;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.content.Context;
 import android.graphics.Paint;
+import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.TextView;
-import soofw.util.FlowLayout;
-import android.util.Log;
+import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+import soofw.util.FlowLayout;
 
 class TaskAdapter extends ArrayAdapter<Task> {
 	View view;
-	Context context;
+	Main context;
 	ArrayList<Task> tasks;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.list_item, tasks);
-		this.context = context;
+		this.context = (Main)context;
 		this.tasks = tasks;
 	}
 
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, final View convertView, final ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Calendar now = Calendar.getInstance();
 		Calendar tomorrow = Calendar.getInstance();
@@ -44,6 +50,128 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		}
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
+		this.view.setLongClickable(true);
+		this.view.setOnTouchListener(new View.OnTouchListener() {
+			// https://www.youtube.com/watch?v=YCHNAi9kJI4&feature=player_embedded
+			float downX;
+			long downTime;
+			int swipeSlop = -1;
+			int tapTime = -1;
+			int longTime = -1;
+			Timer longTimer;
+			boolean swiping = false;
+
+			private void cancelLongPress() {
+				if(longTimer != null) {
+					longTimer.cancel();
+				}
+			}
+
+			@Override
+			public boolean onTouch(final View view, final MotionEvent event) {
+				if(swipeSlop < 0 || tapTime < 0 || longTime < 0) {
+					ViewConfiguration vc = ViewConfiguration.get(TaskAdapter.this.context);
+					swipeSlop = vc.getScaledTouchSlop();
+					tapTime = vc.getTapTimeout();
+					longTime = vc.getLongPressTimeout();
+				}
+
+				float x, dx, dxa;
+				switch(event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						downX = event.getX();
+						downTime = System.currentTimeMillis();
+						cancelLongPress();
+						longTimer = new Timer();
+						longTimer.schedule(new TimerTask() {
+							@Override
+							public void run() {
+								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+								new ActionDialogFragment(temp)
+									.show(TaskAdapter.this.context.getSupportFragmentManager(), "tag?");
+							}
+						}, longTime);
+						break;
+
+					case MotionEvent.ACTION_CANCEL:
+						view.setAlpha(1);
+						view.setTranslationX(0);
+						cancelLongPress();
+						break;
+
+					case MotionEvent.ACTION_MOVE:
+						x = event.getX() + view.getTranslationX();
+						dx = x - downX;
+						dxa = Math.abs(dx);
+
+						if(!swiping) {
+							if(dxa >= swipeSlop) {
+								swiping = true;
+								((ListView)parent).requestDisallowInterceptTouchEvent(true);
+								cancelLongPress();
+							}
+						}
+						if(swiping) {
+							view.setTranslationX(dx);
+							view.setAlpha(1 - dxa/view.getWidth());
+						}
+						break;
+
+					case MotionEvent.ACTION_UP:
+						long elapsed = System.currentTimeMillis() - downTime;
+						if(swiping) { // SWIPE
+							x = event.getX() + view.getTranslationX();
+							dx = x - downX;
+							dxa = Math.abs(dx);
+							float fractionCovered, endX, endAlpha;
+							final boolean remove;
+							if(dxa >= view.getWidth() / 4) {
+								remove = true;
+								fractionCovered = dxa / view.getWidth();
+								endX = (dx > 0) ? view.getWidth() : -view.getWidth();
+								endAlpha = 0;
+							} else {
+								remove = false;
+								fractionCovered = 1 - (dxa / view.getWidth());
+								endX = 0;
+								endAlpha = 1;
+							}
+							long duration = (int)((1 - fractionCovered) * 500);
+							((ListView)parent).setEnabled(false);
+							AnimatorListener al = new AnimatorListener() {
+								@Override
+								public void onAnimationEnd(Animator anim) {
+									if(remove) {
+										TaskAdapter.this.context.deleteItem(view, position);
+									} else {
+										view.setAlpha(1);
+										view.setTranslationX(0);
+										swiping = false;
+										((ListView)parent).setEnabled(true);
+									}
+								}
+								@Override public void onAnimationRepeat(Animator anim) {}
+								@Override public void onAnimationStart(Animator anim) {}
+								@Override public void onAnimationCancel(Animator anim) {}
+							};
+							view.animate().setDuration(duration)
+								.alpha(endAlpha).translationX(endX)
+								.setListener(al);
+						} else if(elapsed <= tapTime) { // TAP
+							temp.setDone(!temp.done);
+							TaskAdapter.this.notifyDataSetChanged();
+							TaskAdapter.this.context.list.write();
+						}
+						if(elapsed <= longTime) {
+							cancelLongPress();
+						}
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+		});
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
