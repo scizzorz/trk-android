@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.content.Context;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,7 +27,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	ArrayList<Task> tasks;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
-		super(context, R.layout.list_item, tasks);
+		super(context, R.layout.task_list_item, tasks);
 		this.context = (Main)context;
 		this.tasks = tasks;
 	}
@@ -46,11 +45,15 @@ class TaskAdapter extends ArrayAdapter<Task> {
 
 		this.view = convertView;
 		if(this.view == null) {
-			this.view = inflater.inflate(R.layout.list_item, null);
+			this.view = inflater.inflate(R.layout.task_list_item, null);
 		}
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
-		this.view.setLongClickable(true);
+		this.view.setVisibility(View.VISIBLE);
+		if(this.view.getLayoutParams() != null) {
+			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+			this.view.requestLayout();
+		}
 		this.view.setOnTouchListener(new View.OnTouchListener() {
 			// https://www.youtube.com/watch?v=YCHNAi9kJI4&feature=player_embedded
 			float downX;
@@ -126,6 +129,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							float fractionCovered, endX, endAlpha;
 							final boolean remove;
 							if(dxa >= view.getWidth() / 4) {
+								TaskAdapter.this.context.deletions++;
 								remove = true;
 								fractionCovered = dxa / view.getWidth();
 								endX = (dx > 0) ? view.getWidth() : -view.getWidth();

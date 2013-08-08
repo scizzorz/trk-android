@@ -26,15 +26,15 @@
 
 	<color name="omnibar_add_focus">#A3DAF5</color>
 
-	<color name="list_bg">#FFF</color>
-	<color name="list_item_color">#111</color>
-	<color name="list_item_bg">#FFF</color>
-	<color name="list_item_bg_focus">#A3DAF5</color>
-	<color name="list_item_divider">#EEE</color>
+	<color name="task_list_bg">#FFF</color>
+	<color name="task_item_color">#111</color>
+	<color name="task_item_bg">#FFF</color>
+	<color name="task_item_bg_focus">#A3DAF5</color>
+	<color name="task_item_divider">#EEE</color>
 
-	<color name="drawer_bg">#222</color>
-	<color name="drawer_item_color">#EEE</color>
-	<color name="drawer_item_bg">#333</color>
-	<color name="drawer_item_bg_focus">#444</color>
-	<color name="drawer_divider">#222</color>
+	<color name="tag_list_bg">#222</color>
+	<color name="tag_item_color">#EEE</color>
+	<color name="tag_item_bg">#333</color>
+	<color name="tag_item_bg_focus">#444</color>
+	<color name="tag_item_divider">#222</color>
 </resources>

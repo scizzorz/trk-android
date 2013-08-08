@@ -59,7 +59,7 @@
 			android:background="@android:color/transparent"
 			android:cacheColorHint="@android:color/transparent"
 			android:choiceMode="multipleChoice"
-			android:divider="@color/list_item_divider"
+			android:divider="@color/task_item_divider"
 			android:dividerHeight="2dp"
 			android:layout_height="match_parent"
 			android:layout_margin="8dp"
@@ -69,9 +69,9 @@
 	</LinearLayout>
 	<ListView
 		android:id="@+id/drawer"
-		android:background="@color/drawer_bg"
+		android:background="@color/tag_list_bg"
 		android:choiceMode="multipleChoice"
-		android:divider="@color/drawer_divider"
+		android:divider="@color/tag_item_divider"
 		android:dividerHeight="2dp"
 		android:layout_gravity="start"
 		android:layout_height="match_parent"

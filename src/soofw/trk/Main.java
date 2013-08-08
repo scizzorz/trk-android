@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
@@ -24,6 +23,7 @@ import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
 import java.util.Calendar;
 import soofw.util.FlowLayout;
 import soofw.util.SpaceTokenizer;
@@ -220,16 +220,24 @@ public class Main extends FragmentActivity {
 
 	// Many thanks to http://stackoverflow.com/a/14306588
 	// and https://github.com/paraches/ListViewCellDeleteAnimation
+	int deletions = 0;
+	ArrayList<Task> deleteQueue = new ArrayList<Task>();
 	void deleteItem(final View view, final Task item) {
 		final int initialHeight = view.getMeasuredHeight();
 
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				Main.this.list.remove(item);
-				Main.this.notifyAdapters();
-				Main.this.list.write();
-				Main.this.taskView.setEnabled(true);
+				deletions--;
+				if(deletions == 0) {
+					for(int i = 0; i < deleteQueue.size(); i++) {
+						Main.this.list.remove(deleteQueue.get(i));
+					}
+					deleteQueue.clear();
+					Main.this.list.write();
+					Main.this.notifyAdapters();
+					Main.this.taskView.setEnabled(true);
+				}
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
 			@Override public void onAnimationStart(Animation anim) {}
@@ -239,8 +247,11 @@ public class Main extends FragmentActivity {
 			@Override
 			protected void applyTransformation(float time, Transformation t) {
 				if(time == 1) {
-					view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-					view.requestLayout();
+					if(view.getLayoutParams().height >= 0) {
+						view.setVisibility(View.GONE);
+						view.getLayoutParams().height = 1; // setting this to 0 breaks it...
+						view.requestLayout();
+					}
 				} else {
 					view.getLayoutParams().height = initialHeight - (int)(initialHeight * time);
 					view.requestLayout();
@@ -252,6 +263,7 @@ public class Main extends FragmentActivity {
 			}
 		};
 
+		deleteQueue.add(item);
 		anim.setAnimationListener(al);
 		anim.setDuration(200);
 		view.startAnimation(anim);
