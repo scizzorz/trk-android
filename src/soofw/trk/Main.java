@@ -79,13 +79,6 @@ public class Main extends FragmentActivity {
 			View item = null;
 			int position = -1;
 
-			private void restore() {
-				if(this.item != null) {
-					this.item.setAlpha(1);
-					this.item.setTranslationX(0);
-				}
-			}
-
 			@Override
 			public boolean onDown(MotionEvent event) {
 				this.mode = UNDEFINED;
@@ -100,6 +93,8 @@ public class Main extends FragmentActivity {
 					this.item = (View)(Main.this.taskView.getChildAt(this.position - Main.this.taskView.getFirstVisiblePosition()));
 					Main.this.consumedPosition = this.position;
 					Main.this.consumedView = this.item;
+
+					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg_focus));
 				} else {
 					Log.d("TRK", "Down");
 				}
@@ -122,6 +117,9 @@ public class Main extends FragmentActivity {
 								Log.d("TRK", "Enter SCROLL");
 								this.mode = SCROLL;
 								Main.this.consumedAction = Main.CONSUMED_IGNORE;
+							}
+							if(this.item != null) {
+								this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
 							}
 						}
 						break;
@@ -156,6 +154,9 @@ public class Main extends FragmentActivity {
 					Main.this.taskAdapter.notifyDataSetChanged();
 					Main.this.list.write();
 				}
+				if(this.item != null) {
+					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
+				}
 				return true;
 			}
 			@Override
@@ -183,6 +184,9 @@ public class Main extends FragmentActivity {
 					new ActionDialogFragment(Main.this.list.filterList.get(this.position))
 						.show(Main.this.getSupportFragmentManager(), "tag?");
 				}
+				if(this.item != null) {
+					this.item.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
+				}
 			}
 		});
 
@@ -200,6 +204,9 @@ public class Main extends FragmentActivity {
 			@Override
 			public boolean onTouch(View view, MotionEvent event) {
 				if(event.getActionMasked() == MotionEvent.ACTION_UP) {
+					if(Main.this.consumedView != null) {
+						Main.this.consumedView.setBackgroundColor(Main.this.getResources().getColor(R.color.list_item_bg));
+					}
 					switch(Main.this.consumedAction) {
 						case Main.CONSUMED_NOTHING:
 						case Main.CONSUMED_LONGPRESS:
