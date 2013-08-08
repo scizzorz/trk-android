@@ -142,7 +142,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								@Override
 								public void onAnimationEnd(Animator anim) {
 									if(remove) {
-										TaskAdapter.this.context.deleteItem(view, position);
+										TaskAdapter.this.context.deleteItem(view, temp);
 									} else {
 										view.setAlpha(1);
 										view.setTranslationX(0);
@@ -236,7 +236,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 				}
 			}
 		}
-
 
 		return view;
 	}

@@ -220,13 +220,13 @@ public class Main extends FragmentActivity {
 
 	// Many thanks to http://stackoverflow.com/a/14306588
 	// and https://github.com/paraches/ListViewCellDeleteAnimation
-	void deleteItem(final View view, final int index) {
+	void deleteItem(final View view, final Task item) {
 		final int initialHeight = view.getMeasuredHeight();
 
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				Main.this.list.remove(list.filterList.get(index));
+				Main.this.list.remove(item);
 				Main.this.notifyAdapters();
 				Main.this.list.write();
 				Main.this.taskView.setEnabled(true);
