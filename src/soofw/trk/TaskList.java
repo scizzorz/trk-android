@@ -113,13 +113,6 @@ class TaskList {
 	void update() {
 		Collections.sort(this.mainList);
 		this.generateTagList();
-		// FIXME bug/26
-		for(int i = 0; i < this.tagFilters.size(); i++) {
-			if(!this.tagList.contains(this.tagFilters.get(i))) {
-				this.tagFilters.remove(i);
-				i--;
-			}
-		}
 	}
 
 	void generateTagList() {
