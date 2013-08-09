@@ -63,11 +63,15 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			int longTime = -1;
 			Timer longTimer;
 			boolean swiping = false;
+			boolean canSwipe = true;
 
 			private void cancelLongPress() {
 				if(longTimer != null) {
 					longTimer.cancel();
 				}
+			}
+			private void setBackground(View view, int id) {
+				view.setBackgroundColor(TaskAdapter.this.context.getResources().getColor(id));
 			}
 
 			@Override
@@ -85,10 +89,13 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
 						cancelLongPress();
+						setBackground(view, R.color.task_item_bg_focus);
+						canSwipe = true;
 						longTimer = new Timer();
 						longTimer.schedule(new TimerTask() {
 							@Override
 							public void run() {
+								canSwipe = false;
 								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
 								new ActionDialogFragment(temp)
 									.show(TaskAdapter.this.context.getSupportFragmentManager(), "tag?");
@@ -97,17 +104,19 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
+						setBackground(view, R.color.task_item_bg);
 						view.setAlpha(1);
 						view.setTranslationX(0);
 						cancelLongPress();
 						break;
 
 					case MotionEvent.ACTION_MOVE:
+						setBackground(view, R.color.task_item_bg);
 						x = event.getX() + view.getTranslationX();
 						dx = x - downX;
 						dxa = Math.abs(dx);
 
-						if(!swiping) {
+						if(!swiping && canSwipe) {
 							if(dxa >= swipeSlop) {
 								swiping = true;
 								((ListView)parent).requestDisallowInterceptTouchEvent(true);
@@ -121,6 +130,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_UP:
+						setBackground(view, R.color.task_item_bg);
 						long elapsed = System.currentTimeMillis() - downTime;
 						if(swiping) { // SWIPE
 							x = event.getX() + view.getTranslationX();
@@ -129,11 +139,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							float fractionCovered, endX, endAlpha;
 							final boolean remove;
 							if(dxa >= view.getWidth() / 4) {
-								TaskAdapter.this.context.deletions++;
 								remove = true;
 								fractionCovered = dxa / view.getWidth();
 								endX = (dx > 0) ? view.getWidth() : -view.getWidth();
 								endAlpha = 0;
+								TaskAdapter.this.context.deletions++;
 							} else {
 								remove = false;
 								fractionCovered = 1 - (dxa / view.getWidth());
