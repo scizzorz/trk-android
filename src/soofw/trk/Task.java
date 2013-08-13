@@ -83,7 +83,7 @@ class Task implements Comparable<Task> {
 		} else if(this.calendar != null && other.calendar != null) {
 			int cmp = this.calendar.compareTo(other.calendar);
 			if(cmp != 0) {
-				return 0;
+				return cmp;
 			}
 		}
 
