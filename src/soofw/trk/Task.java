@@ -13,12 +13,14 @@ class Task implements Comparable<Task> {
 	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
 	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
 	final static Pattern re_done = Pattern.compile("^x\\s+");
+	final static Pattern re_current = Pattern.compile("^/\\s+");
 
 	String source = null;
 	String pretty = null;
 	String sortVal = null;
 	String searchVal = null;
 	boolean done = false;
+	boolean current = false;
 	int priority = 0;
 	Calendar calendar = null;
 	ArrayList<String> tags = new ArrayList<String>();
@@ -27,6 +29,7 @@ class Task implements Comparable<Task> {
 		this.source = source.trim();
 		this.pretty = this.source;
 
+		this.pretty = this.pretty.replaceAll(re_current.pattern(), "");
 		this.searchVal = this.pretty = this.pretty.replaceAll(re_done.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_date.pattern(), "");
 		this.sortVal = this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
@@ -38,6 +41,7 @@ class Task implements Comparable<Task> {
 
 		// find if it's completed
 		this.done = re_done.matcher(this.source).find();
+		this.current = re_current.matcher(this.source).find();
 
 		// find the priority
 		Matcher m = re_priority.matcher(this.source);
@@ -63,6 +67,11 @@ class Task implements Comparable<Task> {
 
 	@Override
 	public int compareTo(Task other) {
+		if(this.current != other.current) {
+			if(this.current) return -1;
+			else return 1;
+		}
+
 		if(this.priority != other.priority) {
 			return other.priority - this.priority;
 		}
@@ -84,8 +93,18 @@ class Task implements Comparable<Task> {
 	void setDone(boolean done) {
 		this.done = done;
 		this.source = this.source.replaceAll(re_done.pattern(), "");
+		this.source = this.source.replaceAll(re_current.pattern(), "");
 		if(this.done) {
 			this.source = "x " + this.source;
+		}
+	}
+
+	void setCurrent(boolean current) {
+		this.current = current;
+		this.source = this.source.replaceAll(re_done.pattern(), "");
+		this.source = this.source.replaceAll(re_current.pattern(), "");
+		if(this.current) {
+			this.source = "/ " + this.source;
 		}
 	}
 

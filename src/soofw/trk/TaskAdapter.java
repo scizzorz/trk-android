@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.content.Context;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -199,6 +200,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		} else {
 			text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 		}
+		if(temp.current) {
+			text.setTypeface(null, Typeface.BOLD);
+		} else {
+			text.setTypeface(null, Typeface.NORMAL);
+		}
+
 
 		if(tags.length == 0) {
 			tags_layout.setVisibility(View.GONE);
