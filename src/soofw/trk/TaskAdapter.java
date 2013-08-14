@@ -27,6 +27,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	Main context;
 	ArrayList<Task> tasks;
 	int expandedPosition = -1;
+	View menuHolder;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.task_list_item, tasks);
@@ -35,6 +36,8 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	}
 
 	void showMenu(final View view) {
+		this.hideMenu();
+		this.menuHolder = view;
 		final View menu = view.findViewById(R.id.menu);
 		if(menu.getVisibility() != View.VISIBLE) {
 			final AnimatorListener al = new AnimatorListener() {
@@ -54,6 +57,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		}
 	}
 	void hideMenu(final View view) {
+		this.menuHolder = null;
 		final View menu = view.findViewById(R.id.menu);
 		if(menu.getVisibility() == View.VISIBLE) {
 			final AnimatorListener al = new AnimatorListener() {
@@ -71,6 +75,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					menu.animate().setDuration(100).alpha(0).setListener(al);
 				}
 			});
+		}
+	}
+	void hideMenu() {
+		if(this.menuHolder != null) {
+			this.hideMenu(this.menuHolder);
 		}
 	}
 
@@ -142,6 +151,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 				float x, dx, dxa;
 				switch(event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
+						if(TaskAdapter.this.menuHolder != view) {
+							TaskAdapter.this.hideMenu();
+						}
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
 						cancelLongPress();
@@ -167,6 +179,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
+						if(TaskAdapter.this.menuHolder != view) {
+							TaskAdapter.this.hideMenu();
+						}
 						view.setAlpha(1);
 						view.setTranslationX(0);
 						cancelTap();
@@ -175,6 +190,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_MOVE:
+						if(TaskAdapter.this.menuHolder != view) {
+							TaskAdapter.this.hideMenu();
+						}
 						x = event.getX() + view.getTranslationX();
 						dx = x - downX;
 						dxa = Math.abs(dx);
@@ -279,6 +297,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.findViewById(R.id.menu_search).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				TaskAdapter.this.hideMenu();
 				new FilterDialogFragment(temp)
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "filter");
 			}
@@ -286,6 +305,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.findViewById(R.id.menu_edit).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				TaskAdapter.this.hideMenu();
 				new EditDialogFragment(temp)
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "edit");
 			}
