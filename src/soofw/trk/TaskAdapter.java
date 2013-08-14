@@ -173,7 +173,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								.alpha(endAlpha).translationX(endX)
 								.setListener(al);
 						} else if(elapsed <= tapTime) { // TAP
-							temp.setDone(!temp.done);
+							temp.toggleFlag(Task.DONE);
 							TaskAdapter.this.notifyDataSetChanged();
 							TaskAdapter.this.context.list.write();
 						}
@@ -192,18 +192,22 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
 
 		text.setText(label);
-		text.setTextColor(this.context.getResources().getColor(temp.done ? R.color.done : R.color.not_done));
-		((ListView)parent).setItemChecked(position, temp.done);
-		text.setChecked(temp.done);
-		if(temp.done) {
+		((ListView)parent).setItemChecked(position, temp.getFlag(Task.DONE));
+		text.setChecked(temp.getFlag(Task.DONE));
+		if(temp.getFlag(Task.DONE)) {
 			text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 		} else {
 			text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 		}
-		if(temp.current) {
+		if(temp.getFlag(Task.NOW)) {
 			text.setTypeface(null, Typeface.BOLD);
 		} else {
 			text.setTypeface(null, Typeface.NORMAL);
+		}
+		if(temp.getFlag(Task.DONE) || temp.getFlag(Task.LATER)) {
+			text.setTextColor(this.context.getResources().getColor(R.color.done));
+		} else {
+			text.setTextColor(this.context.getResources().getColor(R.color.not_done));
 		}
 
 

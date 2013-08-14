@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
-	final static int CURRENT = 1;
+	final static int NOW = 1;
 
 	Main context;
 	Task task;
@@ -56,9 +56,9 @@ class ActionDialogFragment extends DialogFragment {
 
 		String[] actions = new String[tags.length + 2];
 		actions[0] = "Edit";
-		actions[1] = "Current";
-		if(task.current) {
-			actions[1] = "Not current";
+		actions[1] = "Mark as current";
+		if(task.getFlag(Task.NOW)) {
+			actions[1] = "Mark as not current";
 		}
 		System.arraycopy(tags, 0, actions, 2, tags.length);
 
@@ -69,8 +69,8 @@ class ActionDialogFragment extends DialogFragment {
 				if(which == ActionDialogFragment.EDIT) {
 					new EditDialogFragment(ActionDialogFragment.this.task)
 						.show(ActionDialogFragment.this.context.getSupportFragmentManager(), "tag!");
-				} else if(which == ActionDialogFragment.CURRENT) {
-					ActionDialogFragment.this.task.setCurrent(!ActionDialogFragment.this.task.current);
+				} else if(which == ActionDialogFragment.NOW) {
+					ActionDialogFragment.this.task.toggleFlag(Task.NOW);
 					ActionDialogFragment.this.context.list.update();
 					ActionDialogFragment.this.context.list.write();
 					ActionDialogFragment.this.context.notifyAdapters();
