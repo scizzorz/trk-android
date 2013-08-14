@@ -34,6 +34,46 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.tasks = tasks;
 	}
 
+	void showMenu(final View view) {
+		final View menu = view.findViewById(R.id.menu);
+		if(menu.getVisibility() != View.VISIBLE) {
+			final AnimatorListener al = new AnimatorListener() {
+				@Override public void onAnimationEnd(Animator anim) {}
+				@Override public void onAnimationRepeat(Animator anim) {}
+				@Override public void onAnimationStart(Animator anim) {}
+				@Override public void onAnimationCancel(Animator anim) {}
+			};
+			this.context.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					menu.setAlpha(0);
+					menu.setVisibility(View.VISIBLE);
+					menu.animate().setDuration(100).alpha(1).setListener(al);
+				}
+			});
+		}
+	}
+	void hideMenu(final View view) {
+		final View menu = view.findViewById(R.id.menu);
+		if(menu.getVisibility() == View.VISIBLE) {
+			final AnimatorListener al = new AnimatorListener() {
+				@Override
+				public void onAnimationEnd(Animator anim) {
+					menu.setVisibility(View.INVISIBLE);
+				}
+				@Override public void onAnimationRepeat(Animator anim) {}
+				@Override public void onAnimationStart(Animator anim) {}
+				@Override public void onAnimationCancel(Animator anim) {}
+			};
+			this.context.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					menu.animate().setDuration(100).alpha(0).setListener(al);
+				}
+			});
+		}
+	}
+
 	@Override
 	public View getView(final int position, final View convertView, final ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -52,7 +92,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
 		this.view.setVisibility(View.VISIBLE);
-		this.view.findViewById(R.id.menu).setVisibility(View.GONE);
+		this.hideMenu(this.view);
 		if(this.view.getLayoutParams() != null) {
 			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 			this.view.requestLayout();
@@ -121,12 +161,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							public void run() {
 								canSwipe = false;
 								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-								TaskAdapter.this.context.runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										view.findViewById(R.id.menu).setVisibility(View.VISIBLE);
-									}
-								});
+								showMenu(view);
 							}
 						}, longTime);
 						break;
@@ -234,6 +269,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							cancelLongPress();
 						}
 						break;
+
 					default:
 						return false;
 				}

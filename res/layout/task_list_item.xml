@@ -50,13 +50,13 @@
 	</LinearLayout>
 	<LinearLayout
 		android:id="@+id/menu"
-		android:background="@color/task_item_divider"
+		android:background="@drawable/shadowed_background"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent"
 		android:orientation="horizontal"
 		android:gravity="center_vertical"
 		android:padding="4dp"
-		android:visibility="gone"
+		android:visibility="invisible"
 		>
 		<ImageButton
 			android:id="@+id/menu_search"
