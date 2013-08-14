@@ -62,7 +62,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			int swipeSlop = -1;
 			int tapTime = -1;
 			int longTime = -1;
+			int feedbackTime = -1;
 			Timer longTimer;
+			Timer tapTimer;
 			boolean swiping = false;
 			boolean canSwipe = true;
 
@@ -71,8 +73,18 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					longTimer.cancel();
 				}
 			}
-			private void setBackground(View view, int id) {
-				view.setBackgroundColor(TaskAdapter.this.context.getResources().getColor(id));
+			private void cancelTap() {
+				if(tapTimer != null) {
+					tapTimer.cancel();
+				}
+			}
+			private void setBackground(final View view, final int id) {
+				TaskAdapter.this.context.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						view.setBackgroundColor(TaskAdapter.this.context.getResources().getColor(id));
+					}
+				});
 			}
 
 			@Override
@@ -81,6 +93,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					ViewConfiguration vc = ViewConfiguration.get(TaskAdapter.this.context);
 					swipeSlop = vc.getScaledTouchSlop();
 					tapTime = vc.getTapTimeout();
+					feedbackTime = tapTime / 2;
 					longTime = vc.getLongPressTimeout();
 				}
 
@@ -90,8 +103,16 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
 						cancelLongPress();
-						setBackground(view, R.color.task_item_bg_focus);
 						canSwipe = true;
+
+						tapTimer = new Timer();
+						tapTimer.schedule(new TimerTask() {
+							@Override
+							public void run() {
+								setBackground(view, R.color.task_item_bg_focus);
+							}
+						}, feedbackTime);
+
 						longTimer = new Timer();
 						longTimer.schedule(new TimerTask() {
 							@Override
@@ -105,14 +126,14 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
-						setBackground(view, R.color.task_item_bg);
 						view.setAlpha(1);
 						view.setTranslationX(0);
+						cancelTap();
 						cancelLongPress();
+						setBackground(view, R.color.task_item_bg);
 						break;
 
 					case MotionEvent.ACTION_MOVE:
-						setBackground(view, R.color.task_item_bg);
 						x = event.getX() + view.getTranslationX();
 						dx = x - downX;
 						dxa = Math.abs(dx);
@@ -121,7 +142,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							if(dxa >= swipeSlop) {
 								swiping = true;
 								((ListView)parent).requestDisallowInterceptTouchEvent(true);
+								cancelTap();
 								cancelLongPress();
+								setBackground(view, R.color.task_item_bg);
 							}
 						}
 						if(swiping) {
@@ -173,6 +196,20 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								.alpha(endAlpha).translationX(endX)
 								.setListener(al);
 						} else if(elapsed <= tapTime) { // TAP
+							if(elapsed <= feedbackTime) {
+								cancelTap();
+								setBackground(view, R.color.task_item_bg_focus);
+								tapTimer = new Timer();
+								tapTimer.schedule(new TimerTask() {
+									@Override
+									public void run() {
+										setBackground(view, R.color.task_item_bg);
+									}
+								}, feedbackTime);
+							} else {
+								setBackground(view, R.color.task_item_bg);
+							}
+
 							temp.toggleFlag(Task.DONE);
 							TaskAdapter.this.notifyDataSetChanged();
 							TaskAdapter.this.context.list.write();
