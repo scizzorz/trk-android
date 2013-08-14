@@ -52,6 +52,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
 		this.view.setVisibility(View.VISIBLE);
+		this.view.findViewById(R.id.menu).setVisibility(View.GONE);
 		if(this.view.getLayoutParams() != null) {
 			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 			this.view.requestLayout();
@@ -120,8 +121,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							public void run() {
 								canSwipe = false;
 								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-								new ActionDialogFragment(temp)
-									.show(TaskAdapter.this.context.getSupportFragmentManager(), "tag?");
+								TaskAdapter.this.context.runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										view.findViewById(R.id.menu).setVisibility(View.VISIBLE);
+									}
+								});
 							}
 						}, longTime);
 						break;
@@ -235,6 +240,36 @@ class TaskAdapter extends ArrayAdapter<Task> {
 				return true;
 			}
 		});
+		this.view.findViewById(R.id.menu_search).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				new FilterDialogFragment(temp)
+					.show(TaskAdapter.this.context.getSupportFragmentManager(), "filter");
+			}
+		});
+		this.view.findViewById(R.id.menu_edit).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				new EditDialogFragment(temp)
+					.show(TaskAdapter.this.context.getSupportFragmentManager(), "edit");
+			}
+		});
+		this.view.findViewById(R.id.menu_now).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				temp.toggleFlag(Task.NOW);
+				TaskAdapter.this.context.list.update();
+				TaskAdapter.this.context.list.write();
+				TaskAdapter.this.context.notifyAdapters();
+			}
+		});
+
+		if(temp.hasTags()) {
+			this.view.findViewById(R.id.menu_search).setVisibility(View.VISIBLE);
+		} else {
+			this.view.findViewById(R.id.menu_search).setVisibility(View.GONE);
+		}
+
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);

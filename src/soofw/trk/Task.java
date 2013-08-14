@@ -143,6 +143,12 @@ class Task implements Comparable<Task> {
 		this.tags.toArray(temp);
 		return temp;
 	}
+	int getNumTags() {
+		return this.tags.size();
+	}
+	boolean hasTags() {
+		return !this.tags.isEmpty();
+	}
 
 	boolean contains(String search) {
 		if(search.isEmpty()) {
