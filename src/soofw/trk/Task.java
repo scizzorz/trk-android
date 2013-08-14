@@ -130,7 +130,9 @@ class Task implements Comparable<Task> {
 		if((this.flags & Task.NOW) == Task.NOW) {
 			strflags += "*";
 		}
-		this.source = strflags + " " + this.source;
+		if(strflags.length() > 0) {
+			this.source = strflags + " " + this.source;
+		}
 	}
 
 	void addTags(Matcher m, int group) {
