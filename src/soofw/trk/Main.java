@@ -9,16 +9,21 @@ import android.text.TextWatcher;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
+import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
+import android.widget.Toast;
+import java.util.ArrayList;
 import java.util.Calendar;
 import soofw.util.FlowLayout;
 import soofw.util.SpaceTokenizer;
@@ -50,33 +55,16 @@ public class Main extends FragmentActivity {
 		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
+
 		filterLayout.setVisibility(View.GONE);
-		taskView.setItemsCanFocus(false);
 
 		this.list = new TaskList(this.app.listFile);
 		this.list.read();
 
 		taskAdapter = new TaskAdapter(this, this.list.filterList);
 		taskView.setAdapter(taskAdapter);
-		taskView.setLongClickable(true);
-		taskView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				boolean checked = ((ListView)parent).isItemChecked(position);
-				if(checked) {
-					((ListView)parent).setItemChecked(position, false);
-					deleteItem(view, position);
-				}
-			}
-		});
-		taskView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment(list.filterList.get(position))
-					.show(Main.this.getSupportFragmentManager(), "tag?");
-				return true;
-			}
-		});
+		taskView.setItemsCanFocus(false);
+		taskView.setLongClickable(false);
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
@@ -225,53 +213,58 @@ public class Main extends FragmentActivity {
 	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
 			this.list.set(list.indexOf(source), newSource);
-			this.list.filter();
 			this.notifyAdapters();
 			this.list.write();
 		}
 	}
 
-	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
-	void deleteItem(final View view, final int index) {
+	// Many thanks to http://stackoverflow.com/a/14306588
+	// and https://github.com/paraches/ListViewCellDeleteAnimation
+	int deletions = 0;
+	ArrayList<Task> deleteQueue = new ArrayList<Task>();
+	void deleteItem(final View view, final Task item) {
+		final int initialHeight = view.getMeasuredHeight();
+
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				Main.this.list.remove(list.filterList.get(index));
-				Main.this.list.filter(omnibar.getText().toString());
-				Main.this.notifyAdapters();
-				Main.this.list.write();
+				deletions--;
+				if(deletions == 0) {
+					for(int i = 0; i < deleteQueue.size(); i++) {
+						Main.this.list.remove(deleteQueue.get(i));
+					}
+					deleteQueue.clear();
+					Main.this.list.write();
+					Main.this.notifyAdapters();
+					Main.this.taskView.setEnabled(true);
+				}
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
 			@Override public void onAnimationStart(Animation anim) {}
 		};
 
-		collapseView(view, al);
-	}
-
-	void collapseView(final View view, final AnimationListener al) {
-		final int initialHeight = view.getMeasuredHeight();
-
 		Animation anim = new Animation() {
 			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				if(interpolatedTime == 1) {
-					view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-					view.requestLayout();
+			protected void applyTransformation(float time, Transformation t) {
+				if(time == 1) {
+					if(view.getLayoutParams().height >= 0) {
+						view.setVisibility(View.GONE);
+						view.getLayoutParams().height = 1; // setting this to 0 breaks it...
+						view.requestLayout();
+					}
 				} else {
-					view.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+					view.getLayoutParams().height = initialHeight - (int)(initialHeight * time);
 					view.requestLayout();
 				}
 			}
-
 			@Override
 			public boolean willChangeBounds() {
 				return true;
 			}
 		};
 
-		if(al != null) {
-			anim.setAnimationListener(al);
-		}
+		deleteQueue.add(item);
+		anim.setAnimationListener(al);
 		anim.setDuration(200);
 		view.startAnimation(anim);
 	}

@@ -10,6 +10,6 @@
 	android:paddingLeft="3dp"
 	android:paddingRight="3dp"
 	android:paddingTop="1dp"
-	android:textColor="@color/drawer_bg"
+	android:textColor="@color/tag_list_bg"
 	android:text="+more"
 	/>

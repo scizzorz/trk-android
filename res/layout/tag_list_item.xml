@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/text"
-	android:background="@drawable/drawer_list_bg_row"
+	android:background="@drawable/tag_item_bg"
 	android:checkMark="?android:attr/listChoiceIndicatorMultiple"
 	android:gravity="center_vertical"
 	android:layout_height="wrap_content"
@@ -10,5 +10,5 @@
 	android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
 	android:paddingRight="?android:attr/listPreferredItemPaddingRight"
 	android:textAppearance="?android:attr/textAppearanceListItemSmall"
-	android:textColor="@color/drawer_item_color"
+	android:textColor="@color/tag_item_color"
 	/>
