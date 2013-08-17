@@ -13,9 +13,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -102,10 +102,16 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.setTranslationX(0);
 		this.view.setVisibility(View.VISIBLE);
 		this.hideMenu(this.view);
+
 		if(this.view.getLayoutParams() != null) {
 			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 			this.view.requestLayout();
 		}
+
+		ImageButton menu_now = (ImageButton)this.view.findViewById(R.id.menu_now);
+		View menu_edit = this.view.findViewById(R.id.menu_edit);
+		View menu_search = this.view.findViewById(R.id.menu_search);
+
 		this.view.setOnTouchListener(new View.OnTouchListener() {
 			// https://www.youtube.com/watch?v=YCHNAi9kJI4&feature=player_embedded
 			float downX;
@@ -294,7 +300,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 				return true;
 			}
 		});
-		this.view.findViewById(R.id.menu_search).setOnClickListener(new View.OnClickListener() {
+		menu_search.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				TaskAdapter.this.hideMenu();
@@ -302,7 +308,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "filter");
 			}
 		});
-		this.view.findViewById(R.id.menu_edit).setOnClickListener(new View.OnClickListener() {
+		menu_edit.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				TaskAdapter.this.hideMenu();
@@ -310,7 +316,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "edit");
 			}
 		});
-		this.view.findViewById(R.id.menu_now).setOnClickListener(new View.OnClickListener() {
+		menu_now.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				temp.toggleFlag(Task.NOW);
@@ -321,9 +327,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		});
 
 		if(temp.hasTags()) {
-			this.view.findViewById(R.id.menu_search).setVisibility(View.VISIBLE);
+			menu_search.setAlpha(1);
+			menu_search.setEnabled(true);
 		} else {
-			this.view.findViewById(R.id.menu_search).setVisibility(View.GONE);
+			menu_search.setAlpha(0.5f);
+			menu_search.setEnabled(false);
 		}
 
 
@@ -333,16 +341,21 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		text.setText(label);
 		((ListView)parent).setItemChecked(position, temp.getFlag(Task.DONE));
 		text.setChecked(temp.getFlag(Task.DONE));
+
 		if(temp.getFlag(Task.DONE)) {
 			text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 		} else {
 			text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 		}
+
 		if(temp.getFlag(Task.NOW)) {
+			menu_now.setImageResource(R.drawable.now_on);
 			text.setTypeface(null, Typeface.BOLD);
 		} else {
+			menu_now.setImageResource(R.drawable.now);
 			text.setTypeface(null, Typeface.NORMAL);
 		}
+
 		if(temp.getFlag(Task.DONE) || temp.getFlag(Task.LATER)) {
 			text.setTextColor(this.context.getResources().getColor(R.color.done));
 		} else {
