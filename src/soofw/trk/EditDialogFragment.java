@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
+import soofw.util.SpaceTokenizer;
 
 class EditDialogFragment extends DialogFragment {
 	Main activity;

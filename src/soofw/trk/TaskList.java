@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.util.Log; // FIXME
 import java.io.BufferedReader;
@@ -113,12 +113,6 @@ class TaskList {
 	void update() {
 		Collections.sort(this.mainList);
 		this.generateTagList();
-		for(int i = 0; i < this.tagFilters.size(); i++) {
-			if(!this.tagList.contains(this.tagFilters.get(i))) {
-				this.tagFilters.remove(i);
-				i--;
-			}
-		}
 	}
 
 	void generateTagList() {

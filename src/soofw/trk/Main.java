@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,20 +9,24 @@ import android.text.TextWatcher;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
+import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+import java.util.ArrayList;
 import java.util.Calendar;
+import soofw.util.FlowLayout;
+import soofw.util.SpaceTokenizer;
 
 public class Main extends FragmentActivity {
 	Trk app = null;
@@ -53,36 +57,18 @@ public class Main extends FragmentActivity {
 		taskView = (ListView)findViewById(R.id.task_view);
 
 		filterLayout.setVisibility(View.GONE);
-		taskView.setItemsCanFocus(false);
 
 		this.list = new TaskList(this.app.listFile);
 		this.list.read();
 
 		taskAdapter = new TaskAdapter(this, this.list.filterList);
 		taskView.setAdapter(taskAdapter);
-		taskView.setLongClickable(true);
-		taskView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				boolean checked = ((ListView)parent).isItemChecked(position);
-				if(checked) {
-					((ListView)parent).setItemChecked(position, false);
-					deleteItem(view, position);
-				}
-			}
-		});
-		taskView.setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				new ActionDialogFragment(list.filterList.get(position))
-					.show(Main.this.getSupportFragmentManager(), "tag?");
-				return true;
-			}
-		});
+		taskView.setItemsCanFocus(false);
+		taskView.setLongClickable(false);
 
 		tagAdapter = new TagAdapter(this, this.list);
 		drawer.setAdapter(tagAdapter);
-		drawer.setOnItemClickListener(new OnItemClickListener() {
+		drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				boolean checked = ((ListView)parent).isItemChecked(position);
@@ -102,12 +88,12 @@ public class Main extends FragmentActivity {
 		omnibar.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				filterItems();
+				notifyAdapters();
 			}
 			@Override public void afterTextChanged(Editable s) {}
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		});
-		omnibar.setOnEditorActionListener(new OnEditorActionListener() {
+		omnibar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
 				if(actionId == EditorInfo.IME_ACTION_SEND) {
@@ -119,7 +105,7 @@ public class Main extends FragmentActivity {
 		});
 	}
 
-	void updateFilterList() {
+	void updateFilters() {
 		if(this.list.tagFilters.size() == 0) {
 			filterLayout.setVisibility(View.GONE);
 			return;
@@ -178,35 +164,41 @@ public class Main extends FragmentActivity {
 			}
 		}
 	}
+	void notifyAdapters() {
+		if(omnibar.getText().toString().isEmpty()) {
+			this.findViewById(R.id.omnibar_clear).setVisibility(View.GONE);
+		} else {
+			this.findViewById(R.id.omnibar_clear).setVisibility(View.VISIBLE);
+		}
+		this.list.filter(omnibar.getText().toString());
+		this.taskAdapter.notifyDataSetChanged();
+		this.tagAdapter.notifyDataSetChanged();
 
-	void filterItems() {
-		list.filter(omnibar.getText().toString());
-		taskAdapter.notifyDataSetChanged();
+		// apparently autoCompleteAdapter.notifyDataSetChanged()
+		// won't update a MultiAutoCompleteTextView list
+		this.autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
+		this.omnibar.setAdapter(autoCompleteAdapter);
 	}
 
 	void addFilter(String filter) {
 		this.list.addTagFilter(filter);
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	public void addFilter(View view) {
 		this.list.addTagFilter(((TextView)view).getText().toString());
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	void removeFilter(String filter) {
 		this.list.removeTagFilter(filter);
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 	public void removeFilter(View view) {
 		this.list.removeTagFilter(((TextView)view).getText().toString());
-		this.filterItems();
-		this.updateFilterList();
-		this.tagAdapter.notifyDataSetChanged();
+		this.updateFilters();
+		this.notifyAdapters();
 	}
 
 
@@ -216,84 +208,73 @@ public class Main extends FragmentActivity {
 	void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
-			list.add(source);
-			taskAdapter.notifyDataSetChanged();
-			tagAdapter.notifyDataSetChanged();
-
-			// apparently autoCompleteAdapter.notifyDataSetChanged()
-			// won't update a MultiAutoCompleteTextView list
-			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
-			omnibar.setAdapter(autoCompleteAdapter);
-
-			omnibar.setText("");
-			list.write();
+			this.list.add(source);
+			this.omnibar.setText("");
+			this.notifyAdapters();
+			this.list.write();
 		}
+	}
+
+	public void clearSearch(View view) {
+		this.omnibar.setText("");
+		this.notifyAdapters();
 	}
 
 	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
-			list.set(list.indexOf(source), newSource);
-			list.filter();
-			taskAdapter.notifyDataSetChanged();
-			tagAdapter.notifyDataSetChanged();
-
-			// apparently autoCompleteAdapter.notifyDataSetChanged()
-			// won't update a MultiAutoCompleteTextView list
-			autoCompleteAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, this.list.complexTagList);
-			omnibar.setAdapter(autoCompleteAdapter);
-
-			list.write();
+			this.list.set(list.indexOf(source), newSource);
+			this.notifyAdapters();
+			this.list.write();
 		}
 	}
 
-	// Many thanks to https://github.com/paraches/ListViewCellDeleteAnimation for this code
-	void deleteItem(final View view, final int index) {
+	// Many thanks to http://stackoverflow.com/a/14306588
+	// and https://github.com/paraches/ListViewCellDeleteAnimation
+	int deletions = 0;
+	ArrayList<Task> deleteQueue = new ArrayList<Task>();
+	void deleteItem(final View view, final Task item) {
+		final int initialHeight = view.getMeasuredHeight();
+
 		AnimationListener al = new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation arg) {
-				list.remove(list.filterList.get(index));
-				list.filter(omnibar.getText().toString());
-				taskAdapter.notifyDataSetChanged();
-				tagAdapter.notifyDataSetChanged();
-
-				// apparently autoCompleteAdapter.notifyDataSetChanged()
-				// won't update a MultiAutoCompleteTextView list
-				autoCompleteAdapter = new ArrayAdapter<String>(Main.this, android.R.layout.simple_dropdown_item_1line, Main.this.list.complexTagList);
-				omnibar.setAdapter(autoCompleteAdapter);
-
-				list.write();
+				deletions--;
+				if(deletions == 0) {
+					for(int i = 0; i < deleteQueue.size(); i++) {
+						Main.this.list.remove(deleteQueue.get(i));
+					}
+					deleteQueue.clear();
+					Main.this.list.write();
+					Main.this.notifyAdapters();
+					Main.this.taskView.setEnabled(true);
+				}
 			}
 			@Override public void onAnimationRepeat(Animation anim) {}
 			@Override public void onAnimationStart(Animation anim) {}
 		};
 
-		collapseView(view, al);
-	}
-
-	void collapseView(final View view, final AnimationListener al) {
-		final int initialHeight = view.getMeasuredHeight();
-
 		Animation anim = new Animation() {
 			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				if(interpolatedTime == 1) {
-					view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-					view.requestLayout();
+			protected void applyTransformation(float time, Transformation t) {
+				if(time == 1) {
+					if(view.getLayoutParams().height >= 0) {
+						view.setVisibility(View.GONE);
+						view.getLayoutParams().height = 1; // setting this to 0 breaks it...
+						view.requestLayout();
+					}
 				} else {
-					view.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+					view.getLayoutParams().height = initialHeight - (int)(initialHeight * time);
 					view.requestLayout();
 				}
 			}
-
 			@Override
 			public boolean willChangeBounds() {
 				return true;
 			}
 		};
 
-		if(al != null) {
-			anim.setAnimationListener(al);
-		}
+		deleteQueue.add(item);
+		anim.setAnimationListener(al);
 		anim.setDuration(200);
 		view.startAnimation(anim);
 	}

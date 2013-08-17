@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -6,16 +6,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class Task implements Comparable<Task> {
-	final static Pattern re_tag = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
-	final static Pattern re_at = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
-	final static Pattern re_hash = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
-	final static Pattern re_plus = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
+	final static Pattern re_tag      = Pattern.compile("(^|\\s)([\\@\\#\\+]([\\w\\/]+))");
+	final static Pattern re_at       = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
+	final static Pattern re_hash     = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
+	final static Pattern re_plus     = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
 	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
-	final static Pattern re_date = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+	final static Pattern re_date     = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
+	final static Pattern re_flags    = Pattern.compile("^([x*]+)\\s+");
+	final static int DONE  = 1 << 0;
+	final static int NOW   = 1 << 1;
+	final static int LATER = 1 << 2;
 
 	String source = null;
 	String pretty = null;
 	String sortVal = null;
+	String searchVal = null;
+	int flags = 0;
 	int priority = 0;
 	Calendar calendar = null;
 	ArrayList<String> tags = new ArrayList<String>();
@@ -24,6 +30,7 @@ class Task implements Comparable<Task> {
 		this.source = source.trim();
 		this.pretty = this.source;
 
+		this.searchVal = this.pretty = this.pretty.replaceAll(re_flags.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_date.pattern(), "");
 		this.sortVal = this.pretty = this.pretty.replaceAll(re_priority.pattern(), "");
 		this.pretty = this.pretty.replaceAll(re_tag.pattern(), "");
@@ -32,8 +39,19 @@ class Task implements Comparable<Task> {
 
 		this.sortVal = this.sortVal.toLowerCase();
 
+		// find its flags
+		Matcher m = re_flags.matcher(this.source);
+		if(m.find()) {
+			if(m.group(1).contains("x")) {
+				this.flags |= Task.DONE;
+			}
+			if(m.group(1).contains("*")) {
+				this.flags |= Task.NOW;
+			}
+		}
+
 		// find the priority
-		Matcher m = re_priority.matcher(this.source);
+		m = re_priority.matcher(this.source);
 		if(m.find()) {
 			this.priority = Integer.parseInt(m.group(2).substring(1));
 			if(this.priority == 0) { // !0 is actually -1 priority
@@ -56,6 +74,14 @@ class Task implements Comparable<Task> {
 
 	@Override
 	public int compareTo(Task other) {
+		if((this.flags & Task.NOW) != (other.flags & Task.NOW)) {
+			if((this.flags & Task.NOW) == Task.NOW) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+
 		if(this.priority != other.priority) {
 			return other.priority - this.priority;
 		}
@@ -65,12 +91,46 @@ class Task implements Comparable<Task> {
 		} else if(this.calendar == null && other.calendar != null) {
 			return 1;
 		} else if(this.calendar != null && other.calendar != null) {
-			if(!this.calendar.equals(other.calendar)) {
-				return this.calendar.compareTo(other.calendar);
+			int cmp = this.calendar.compareTo(other.calendar);
+			if(cmp != 0) {
+				return cmp;
 			}
 		}
 
 		return this.sortVal.compareTo(other.sortVal);
+	}
+
+	void addFlag(int flag) {
+		this.flags |= flag;
+		this.updateFlags();
+	}
+	void removeFlag(int flag) {
+		this.flags &= (~flag);
+		this.updateFlags();
+	}
+	void setFlag(int flag, boolean to) {
+		if(to) {
+			this.addFlag(flag);
+		} else {
+			this.removeFlag(flag);
+		}
+	}
+	boolean getFlag(int flag) {
+		return (this.flags & flag) == flag;
+	}
+	void toggleFlag(int flag) {
+		this.setFlag(flag, !this.getFlag(flag));
+	}
+	void updateFlags() {
+		this.source = this.source.replaceAll(re_flags.pattern(), "");
+		String strflags = "";
+		if((this.flags & Task.DONE) == Task.DONE) {
+			strflags += "x";
+		}
+		if((this.flags & Task.NOW) == Task.NOW) {
+			strflags += "*";
+		}
+		this.source = strflags + " " + this.source;
 	}
 
 	void addTags(Matcher m, int group) {
@@ -87,7 +147,7 @@ class Task implements Comparable<Task> {
 	boolean contains(String search) {
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
-			if(!this.source.toLowerCase().contains(words[i])) {
+			if(!this.searchVal.toLowerCase().contains(words[i])) {
 				return false;
 			}
 		}

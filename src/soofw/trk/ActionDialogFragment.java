@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -12,8 +12,9 @@ import java.util.ArrayList;
 
 class ActionDialogFragment extends DialogFragment {
 	final static int EDIT = 0;
+	final static int NOW = 1;
 
-	Main activity;
+	Main context;
 	Task task;
 
 	ActionDialogFragment(Task task) {
@@ -22,7 +23,7 @@ class ActionDialogFragment extends DialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		this.activity = (Main)this.getActivity();
+		this.context = (Main)this.getActivity();
 
 		ArrayList<String> taglets = new ArrayList<String>();
 		String[] fulltags = this.task.getTags();
@@ -53,19 +54,28 @@ class ActionDialogFragment extends DialogFragment {
 		final String[] tags = new String[taglets.size()];
 		taglets.toArray(tags);
 
-		String[] actions = new String[tags.length + 1];
+		String[] actions = new String[tags.length + 2];
 		actions[0] = "Edit";
-		System.arraycopy(tags, 0, actions, 1, tags.length);
+		actions[1] = "Mark as current";
+		if(task.getFlag(Task.NOW)) {
+			actions[1] = "Mark as not current";
+		}
+		System.arraycopy(tags, 0, actions, 2, tags.length);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		builder.setItems(actions, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(which == ActionDialogFragment.EDIT) {
 					new EditDialogFragment(ActionDialogFragment.this.task)
-						.show(ActionDialogFragment.this.activity.getSupportFragmentManager(), "tag!");
+						.show(ActionDialogFragment.this.context.getSupportFragmentManager(), "tag!");
+				} else if(which == ActionDialogFragment.NOW) {
+					ActionDialogFragment.this.task.toggleFlag(Task.NOW);
+					ActionDialogFragment.this.context.list.update();
+					ActionDialogFragment.this.context.list.write();
+					ActionDialogFragment.this.context.notifyAdapters();
 				} else {
-					ActionDialogFragment.this.activity.addFilter(tags[which - 1]);
+					ActionDialogFragment.this.context.addFilter(tags[which - 2]);
 				}
 			}
 		});

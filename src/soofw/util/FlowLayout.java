@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.util;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import soofw.trk.R;
 
 /**
  * This class is taken from https://github.com/ApmeM/android-flowlayout

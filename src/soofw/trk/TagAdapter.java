@@ -1,4 +1,4 @@
-package com.soofw.trk;
+package soofw.trk;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,7 +15,7 @@ class TagAdapter extends ArrayAdapter<String> {
 	TaskList list;
 
 	TagAdapter(Context context, TaskList list) {
-		super(context, R.layout.drawer_list_item, list.tagList);
+		super(context, R.layout.tag_list_item, list.tagList);
 		this.context = context;
 		this.list = list;
 	}
@@ -29,7 +29,7 @@ class TagAdapter extends ArrayAdapter<String> {
 		this.view = convertView;
 		if(this.view == null) {
 			LayoutInflater inflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			this.view = inflater.inflate(R.layout.drawer_list_item, null);
+			this.view = inflater.inflate(R.layout.tag_list_item, null);
 		}
 
 		String tag = this.getItem(pos);
