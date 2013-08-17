@@ -145,10 +145,31 @@ class Task implements Comparable<Task> {
 	}
 
 	boolean contains(String search) {
+		if(search.isEmpty()) {
+			return true;
+		}
+
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
-			if(!this.searchVal.toLowerCase().contains(words[i])) {
-				return false;
+			char type = words[i].charAt(0);
+			switch(type) {
+				case '!':
+					if(!this.matches(words[i])) {
+						return false;
+					}
+					break;
+
+				case '+': case '#': case '@':
+					if(!Pattern.matches("(^|.*\\s)\\" + type + "[\\w\\/]*" + words[i].substring(1) + "[\\w]*(\\s.*|\\/.*|$)",
+								this.searchVal.toLowerCase())) {
+						return false;
+					}
+					break;
+
+				default:
+					if(!this.searchVal.toLowerCase().contains(words[i])) {
+						return false;
+					}
 			}
 		}
 		return true;
@@ -163,16 +184,16 @@ class Task implements Comparable<Task> {
 			case '!':
 				regex = "(^|.*\\s)(\\!" + content + ")(\\s.*|$)";
 				break;
-			case '+':
-			case '#':
-			case '@':
-				regex = "(^|.*\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s.*|\\/.*|$)";
+
+			case '+': case '#': case '@':
+				regex = "(^|.*\\s)\\" + type + "([\\w\\/]*\\/)?(" + content + ")(\\s.*|\\/.*|$)";
 				break;
+
 			default:
 				regex = "(^|.*\\s)(" + tag + ")(\\s.*|$)";
 		}
 
-		return Pattern.matches(regex, this.source.toLowerCase());
+		return Pattern.matches(regex, this.searchVal.toLowerCase());
 	}
 
 

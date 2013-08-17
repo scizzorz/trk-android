@@ -124,9 +124,7 @@ class TaskList {
 			for(int j = 0; j < tags.length; j++) {
 				char type = tags[j].charAt(0);
 				switch(type) {
-					case '+':
-					case '@':
-					case '#':
+					case '+': case '@': case '#':
 						String[] subtags = tags[j].substring(1).split("/");
 						if(!this.complexTagList.contains(tags[j])) {
 							this.complexTagList.add(tags[j]);
