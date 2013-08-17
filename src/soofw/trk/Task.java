@@ -151,12 +151,21 @@ class Task implements Comparable<Task> {
 
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
-			switch(words[i].charAt(0)) {
-				case '+': case '#': case '@': case '!':
+			char type = words[i].charAt(0);
+			switch(type) {
+				case '!':
 					if(!this.matches(words[i])) {
 						return false;
 					}
 					break;
+
+				case '+': case '#': case '@':
+					if(!Pattern.matches("(^|.*\\s)\\" + type + "[\\w\\/]*" + words[i].substring(1) + "[\\w]*(\\s.*|\\/.*|$)",
+								this.searchVal.toLowerCase())) {
+						return false;
+					}
+					break;
+
 				default:
 					if(!this.searchVal.toLowerCase().contains(words[i])) {
 						return false;
