@@ -43,6 +43,7 @@
 					android:layout_marginRight="8dp"
 					android:layout_width="32dp"
 					android:onClick="clearSearch"
+					android:visibility="gone"
 					/>
 			</FrameLayout>
 			<ImageButton
