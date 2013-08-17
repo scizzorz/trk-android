@@ -145,10 +145,22 @@ class Task implements Comparable<Task> {
 	}
 
 	boolean contains(String search) {
+		if(search.isEmpty()) {
+			return true;
+		}
+
 		String[] words = search.toLowerCase().split(" ");
 		for(int i = 0; i < words.length; i++) {
-			if(!this.searchVal.toLowerCase().contains(words[i])) {
-				return false;
+			switch(words[i].charAt(0)) {
+				case '+': case '#': case '@': case '!':
+					if(!this.matches(words[i])) {
+						return false;
+					}
+					break;
+				default:
+					if(!this.searchVal.toLowerCase().contains(words[i])) {
+						return false;
+					}
 			}
 		}
 		return true;
@@ -163,9 +175,7 @@ class Task implements Comparable<Task> {
 			case '!':
 				regex = "(^|.*\\s)(\\!" + content + ")(\\s.*|$)";
 				break;
-			case '+':
-			case '#':
-			case '@':
+			case '+': case '#': case '@':
 				regex = "(^|.*\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s.*|\\/.*|$)";
 				break;
 			default:
