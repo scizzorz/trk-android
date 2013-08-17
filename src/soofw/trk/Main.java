@@ -165,6 +165,11 @@ public class Main extends FragmentActivity {
 		}
 	}
 	void notifyAdapters() {
+		if(omnibar.getText().toString().isEmpty()) {
+			this.findViewById(R.id.omnibar_clear).setVisibility(View.GONE);
+		} else {
+			this.findViewById(R.id.omnibar_clear).setVisibility(View.VISIBLE);
+		}
 		this.list.filter(omnibar.getText().toString());
 		this.taskAdapter.notifyDataSetChanged();
 		this.tagAdapter.notifyDataSetChanged();
@@ -208,6 +213,11 @@ public class Main extends FragmentActivity {
 			this.notifyAdapters();
 			this.list.write();
 		}
+	}
+
+	public void clearSearch(View view) {
+		this.omnibar.setText("");
+		this.notifyAdapters();
 	}
 
 	void editItem(Task source, String newSource) {

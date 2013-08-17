@@ -18,25 +18,46 @@
 			android:layout_width="match_parent"
 			android:orientation="horizontal"
 			>
-			<MultiAutoCompleteTextView
-				android:id="@+id/omnibar"
-				android:hint="@string/omnibar_hint"
-				android:imeOptions="actionSend"
-				android:inputType="text"
+			<FrameLayout
 				android:layout_height="40dp"
-				android:layout_margin="8dp"
+				android:layout_marginLeft="8dp"
+				android:layout_marginRight="0dp"
+				android:layout_marginTop="8dp"
+				android:layout_marginBottom="8dp"
 				android:layout_toLeftOf="@+id/omnibar_add"
 				android:layout_width="match_parent"
-				/>
+				>
+				<MultiAutoCompleteTextView
+					android:id="@+id/omnibar"
+					android:hint="@string/omnibar_hint"
+					android:imeOptions="actionSend"
+					android:inputType="text"
+					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					/>
+				<Button
+					android:id="@+id/omnibar_clear"
+					android:background="@android:drawable/ic_menu_close_clear_cancel"
+					android:layout_gravity="right|center_vertical"
+					android:layout_height="32dp"
+					android:layout_marginRight="8dp"
+					android:layout_width="32dp"
+					android:onClick="clearSearch"
+					android:visibility="gone"
+					/>
+			</FrameLayout>
 			<ImageButton
 				android:id="@+id/omnibar_add"
 				android:background="@drawable/omnibar_add_bg"
 				android:layout_alignParentRight="true"
-				android:layout_height="40dp"
-				android:layout_margin="8dp"
-				android:layout_width="40dp"
+				android:layout_height="32dp"
+				android:layout_marginLeft="4dp"
+				android:layout_marginRight="12dp"
+				android:layout_marginTop="12dp"
+				android:layout_marginBottom="12dp"
+				android:layout_width="32dp"
 				android:onClick="addItem"
-				android:src="@drawable/omnibar_add"
+				android:src="@android:drawable/ic_menu_add"
 				style="?android:attr/borderlessButtonStyle"
 				/>
 		</RelativeLayout>
