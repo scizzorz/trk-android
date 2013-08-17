@@ -210,6 +210,11 @@ public class Main extends FragmentActivity {
 		}
 	}
 
+	public void clearSearch(View view) {
+		this.omnibar.setText("");
+		this.notifyAdapters();
+	}
+
 	void editItem(Task source, String newSource) {
 		if(!newSource.isEmpty()) {
 			this.list.set(list.indexOf(source), newSource);
