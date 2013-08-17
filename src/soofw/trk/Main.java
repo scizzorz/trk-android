@@ -3,7 +3,6 @@ package soofw.trk;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.animation.Animation;
@@ -31,7 +30,6 @@ import soofw.util.SpaceTokenizer;
 public class Main extends FragmentActivity {
 	Trk app = null;
 
-	DrawerLayout drawerLayout = null;
 	LayoutInflater inflater = null;
 	FlowLayout filterLayout = null;
 	ListView drawer = null;
@@ -47,12 +45,11 @@ public class Main extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		app = (Trk)getApplicationContext();
-		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		drawer = (ListView)findViewById(R.id.drawer);
 		filterLayout = (FlowLayout)findViewById(R.id.filter_layout);
-		inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		omnibar = (MultiAutoCompleteTextView)findViewById(R.id.omnibar);
 		taskView = (ListView)findViewById(R.id.task_view);
 
