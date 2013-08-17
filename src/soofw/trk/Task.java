@@ -175,14 +175,16 @@ class Task implements Comparable<Task> {
 			case '!':
 				regex = "(^|.*\\s)(\\!" + content + ")(\\s.*|$)";
 				break;
+
 			case '+': case '#': case '@':
-				regex = "(^|.*\\s)(\\" + type + "([\\w\\/]*)(" + content + "))(\\s.*|\\/.*|$)";
+				regex = "(^|.*\\s)\\" + type + "([\\w\\/]*\\/)?(" + content + ")(\\s.*|\\/.*|$)";
 				break;
+
 			default:
 				regex = "(^|.*\\s)(" + tag + ")(\\s.*|$)";
 		}
 
-		return Pattern.matches(regex, this.source.toLowerCase());
+		return Pattern.matches(regex, this.searchVal.toLowerCase());
 	}
 
 
