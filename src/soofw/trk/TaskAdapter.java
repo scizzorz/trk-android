@@ -26,6 +26,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	View view;
 	Main context;
 	ArrayList<Task> tasks;
+	int expandedPosition = -1;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.task_list_item, tasks);
@@ -210,9 +211,19 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								setBackground(view, R.color.task_item_bg);
 							}
 
-							temp.toggleFlag(Task.DONE);
-							TaskAdapter.this.notifyDataSetChanged();
-							TaskAdapter.this.context.list.write();
+							x = event.getX() + view.getTranslationX();
+							if(x >= view.getWidth() * 3 / 4) {
+								temp.toggleFlag(Task.DONE);
+								TaskAdapter.this.notifyDataSetChanged();
+								TaskAdapter.this.context.list.write();
+							} else {
+								if(TaskAdapter.this.expandedPosition == position) {
+									TaskAdapter.this.expandedPosition = -1;
+								} else {
+									TaskAdapter.this.expandedPosition = position;
+								}
+								TaskAdapter.this.notifyDataSetChanged();
+							}
 						}
 						if(elapsed <= longTime) {
 							cancelLongPress();
@@ -252,6 +263,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			tags_layout.setVisibility(View.GONE);
 		} else {
 			tags_layout.setVisibility(View.VISIBLE);
+
 			for(int i = 0; i < tags.length || i < tags_layout.getChildCount(); i++) {
 				if(i < tags.length) {
 					TextView tag;
@@ -293,6 +305,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					}
 
 					tag.setBackgroundColor(this.context.getResources().getColor(bg_id));
+
+					int height = 4; // FIXME
+					if(this.expandedPosition == position) {
+						height = tag.getLineHeight() + 12;
+					}
+					tag.setHeight(height);
 				} else {
 					tags_layout.getChildAt(i).setVisibility(View.GONE);
 				}
