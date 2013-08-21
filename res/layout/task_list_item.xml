@@ -1,62 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:flow="http://schemas.android.com/apk/res/soofw.trk"
-	android:id="@+id/frame"
+	android:id="@+id/content"
+	android:background="@color/task_item_bg"
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent"
-	android:measureAllChildren="true"
 	android:minHeight="?android:attr/listPreferredItemHeightSmall"
-	android:background="@color/task_item_bg"
+	android:orientation="vertical"
+	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceListItemSmall"
 	>
-	<LinearLayout
-		android:id="@+id/content"
+	<CheckedTextView
+		android:id="@+id/text"
+		android:background="@android:color/transparent"
+		android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+		android:gravity="center_vertical"
+		android:layout_height="wrap_content"
+		android:layout_margin="0dp"
+		android:layout_width="match_parent"
+		android:paddingBottom="0dp"
+		android:paddingLeft="2dp"
+		android:paddingRight="0dp"
+		android:paddingTop="0dp"
+		android:textColor="@color/task_item_color"
+		/>
+	<soofw.util.FlowLayout
+		android:id="@+id/tags"
 		android:background="@android:color/transparent"
 		android:layout_height="wrap_content"
+		android:layout_marginLeft="0dp"
+		android:layout_marginRight="0dp"
+		android:layout_marginTop="4dp"
+		android:layout_marginBottom="0dp"
 		android:layout_width="match_parent"
-		android:minHeight="?android:attr/listPreferredItemHeightSmall"
-		android:orientation="vertical"
-		android:padding="4dp"
-		android:textAppearance="?android:attr/textAppearanceListItemSmall"
-		>
-		<CheckedTextView
-			android:id="@+id/text"
-			android:background="@android:color/transparent"
-			android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-			android:gravity="center_vertical"
-			android:layout_height="wrap_content"
-			android:layout_margin="0dp"
-			android:layout_width="match_parent"
-			android:paddingBottom="0dp"
-			android:paddingLeft="2dp"
-			android:paddingRight="0dp"
-			android:paddingTop="0dp"
-			android:textColor="@color/task_item_color"
-			/>
-		<soofw.util.FlowLayout
-			android:id="@+id/tags"
-			android:background="@android:color/transparent"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="0dp"
-			android:layout_marginRight="0dp"
-			android:layout_marginTop="4dp"
-			android:layout_marginBottom="0dp"
-			android:layout_width="match_parent"
-			android:orientation="horizontal"
-			android:padding="0dp"
-			flow:horizontalSpacing="4dp"
-			flow:verticalSpacing="4dp"
-			/>
-	</LinearLayout>
+		android:orientation="horizontal"
+		android:padding="0dp"
+		flow:horizontalSpacing="4dp"
+		flow:verticalSpacing="4dp"
+		/>
 	<LinearLayout
 		android:id="@+id/menu"
-		android:background="@drawable/shadowed_background"
+		android:background="@android:color/transparent"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent"
 		android:orientation="horizontal"
 		android:gravity="center_vertical"
 		android:padding="4dp"
-		android:visibility="invisible"
 		>
 		<ImageButton
 			android:id="@+id/menu_search"
@@ -91,4 +81,4 @@
 			style="?android:attr/borderlessButtonStyle"
 			/>
 	</LinearLayout>
-</FrameLayout>
+</LinearLayout>

@@ -26,61 +26,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	View view;
 	Main context;
 	ArrayList<Task> tasks;
-	int expandedPosition = -1;
-	View menuHolder;
+	Task expandedItem = null;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.task_list_item, tasks);
 		this.context = (Main)context;
 		this.tasks = tasks;
-	}
-
-	void showMenu(final View view) {
-		this.hideMenu();
-		this.menuHolder = view;
-		final View menu = view.findViewById(R.id.menu);
-		if(menu.getVisibility() != View.VISIBLE) {
-			final AnimatorListener al = new AnimatorListener() {
-				@Override public void onAnimationEnd(Animator anim) {}
-				@Override public void onAnimationRepeat(Animator anim) {}
-				@Override public void onAnimationStart(Animator anim) {}
-				@Override public void onAnimationCancel(Animator anim) {}
-			};
-			this.context.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					menu.setAlpha(0);
-					menu.setVisibility(View.VISIBLE);
-					menu.animate().setDuration(100).alpha(1).setListener(al);
-				}
-			});
-		}
-	}
-	void hideMenu(final View view) {
-		this.menuHolder = null;
-		final View menu = view.findViewById(R.id.menu);
-		if(menu.getVisibility() == View.VISIBLE) {
-			final AnimatorListener al = new AnimatorListener() {
-				@Override
-				public void onAnimationEnd(Animator anim) {
-					menu.setVisibility(View.INVISIBLE);
-				}
-				@Override public void onAnimationRepeat(Animator anim) {}
-				@Override public void onAnimationStart(Animator anim) {}
-				@Override public void onAnimationCancel(Animator anim) {}
-			};
-			this.context.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					menu.animate().setDuration(100).alpha(0).setListener(al);
-				}
-			});
-		}
-	}
-	void hideMenu() {
-		if(this.menuHolder != null) {
-			this.hideMenu(this.menuHolder);
-		}
 	}
 
 	@Override
@@ -101,16 +52,17 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
 		this.view.setVisibility(View.VISIBLE);
-		this.hideMenu(this.view);
 
 		if(this.view.getLayoutParams() != null) {
 			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 			this.view.requestLayout();
 		}
 
+		View menu = this.view.findViewById(R.id.menu);
 		ImageButton menu_now = (ImageButton)this.view.findViewById(R.id.menu_now);
 		View menu_edit = this.view.findViewById(R.id.menu_edit);
 		View menu_search = this.view.findViewById(R.id.menu_search);
+		View menu_tags = this.view.findViewById(R.id.menu_tags);
 
 		this.view.setOnTouchListener(new View.OnTouchListener() {
 			// https://www.youtube.com/watch?v=YCHNAi9kJI4&feature=player_embedded
@@ -157,9 +109,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 				float x, dx, dxa;
 				switch(event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
-						if(TaskAdapter.this.menuHolder != view) {
-							TaskAdapter.this.hideMenu();
-						}
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
 						cancelLongPress();
@@ -179,15 +128,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							public void run() {
 								canSwipe = false;
 								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-								showMenu(view);
 							}
 						}, longTime);
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
-						if(TaskAdapter.this.menuHolder != view) {
-							TaskAdapter.this.hideMenu();
-						}
 						view.setAlpha(1);
 						view.setTranslationX(0);
 						cancelTap();
@@ -196,9 +141,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 						break;
 
 					case MotionEvent.ACTION_MOVE:
-						if(TaskAdapter.this.menuHolder != view) {
-							TaskAdapter.this.hideMenu();
-						}
 						x = event.getX() + view.getTranslationX();
 						dx = x - downX;
 						dxa = Math.abs(dx);
@@ -281,10 +223,10 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								TaskAdapter.this.notifyDataSetChanged();
 								TaskAdapter.this.context.list.write();
 							} else {
-								if(TaskAdapter.this.expandedPosition == position) {
-									TaskAdapter.this.expandedPosition = -1;
+								if(TaskAdapter.this.expandedItem == temp) {
+									TaskAdapter.this.expandedItem = null;
 								} else {
-									TaskAdapter.this.expandedPosition = position;
+									TaskAdapter.this.expandedItem = temp;
 								}
 								TaskAdapter.this.notifyDataSetChanged();
 							}
@@ -303,7 +245,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		menu_search.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				TaskAdapter.this.hideMenu();
 				new FilterDialogFragment(temp)
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "filter");
 			}
@@ -311,7 +252,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		menu_edit.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				TaskAdapter.this.hideMenu();
 				new EditDialogFragment(temp)
 					.show(TaskAdapter.this.context.getSupportFragmentManager(), "edit");
 			}
@@ -333,6 +273,9 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			menu_search.setAlpha(0.5f);
 			menu_search.setEnabled(false);
 		}
+
+		menu_tags.setAlpha(0.5f);
+		menu_tags.setEnabled(false);
 
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
@@ -361,6 +304,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		} else {
 			text.setTextColor(this.context.getResources().getColor(R.color.not_done));
 		}
+
+		int visibility = View.GONE;
+		if(this.expandedItem == temp) {
+			visibility = View.VISIBLE;
+		}
+		menu.setVisibility(visibility);
 
 
 		if(tags.length == 0) {
@@ -411,7 +360,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					tag.setBackgroundColor(this.context.getResources().getColor(bg_id));
 
 					int height = 4; // FIXME
-					if(this.expandedPosition == position) {
+					if(this.expandedItem == temp) {
 						height = tag.getLineHeight() + 12;
 					}
 					tag.setHeight(height);
