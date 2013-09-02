@@ -49,7 +49,6 @@ class TaskList {
 			Log.e("TRK", e.getMessage());
 			this.tutorial();
 		} catch(IOException e) {
-			// FIXME
 			Log.e("TRK", e.getMessage());
 		}
 	}
@@ -64,7 +63,6 @@ class TaskList {
 			writer.flush();
 			writer.close();
 		} catch(IOException e) {
-			// FIXME
 			Log.e("TRK", e.getMessage());
 		}
 	}
