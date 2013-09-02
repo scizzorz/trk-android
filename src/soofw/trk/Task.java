@@ -130,7 +130,9 @@ class Task implements Comparable<Task> {
 		if((this.flags & Task.NOW) == Task.NOW) {
 			strflags += "*";
 		}
-		this.source = strflags + " " + this.source;
+		if(strflags.length() > 0) {
+			this.source = strflags + " " + this.source;
+		}
 	}
 
 	void addTags(Matcher m, int group) {
@@ -142,6 +144,12 @@ class Task implements Comparable<Task> {
 		String[] temp = new String[this.tags.size()];
 		this.tags.toArray(temp);
 		return temp;
+	}
+	int getNumTags() {
+		return this.tags.size();
+	}
+	boolean hasTags() {
+		return !this.tags.isEmpty();
 	}
 
 	boolean contains(String search) {

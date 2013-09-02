@@ -36,11 +36,11 @@
 					/>
 				<Button
 					android:id="@+id/omnibar_clear"
-					android:background="@android:drawable/ic_menu_close_clear_cancel"
+					android:background="@drawable/omnibar_clear"
 					android:layout_gravity="right|center_vertical"
-					android:layout_height="32dp"
+					android:layout_height="22dp"
 					android:layout_marginRight="8dp"
-					android:layout_width="32dp"
+					android:layout_width="22dp"
 					android:onClick="clearSearch"
 					android:visibility="gone"
 					/>

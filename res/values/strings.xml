@@ -21,6 +21,8 @@
 	<color name="date_soon_fg">#EBEB47</color>
 	<color name="date_soon_bg">#EFEF8F</color>
 
+	<color name="tag_fg">#222</color>
+
 	<color name="done">#999999</color>
 	<color name="not_done">#000000</color>
 
