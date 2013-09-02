@@ -12,6 +12,9 @@ import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -100,6 +103,24 @@ public class Main extends FragmentActivity {
 				return false;
 			}
 		});
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = this.getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+			case R.id.omnibar_add:
+				this.addItem();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	void updateFilters() {
@@ -195,9 +216,6 @@ public class Main extends FragmentActivity {
 	}
 
 
-	public void addItem(View view) {
-		addItem();
-	}
 	void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {

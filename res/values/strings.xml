@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">trk</string>
 	<string name="omnibar_hint">Search or add...</string>
+	<string name="omnibar_add">Add</string>
 
 	<color name="plus_fg">#EB9947</color>
 	<color name="plus_bg">#EFBF8F</color>
