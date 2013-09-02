@@ -118,6 +118,10 @@ public class Main extends FragmentActivity {
 			case R.id.omnibar_add:
 				this.addItem();
 				return true;
+			case R.id.filter_toggle:
+				this.list.filterAnd = !this.list.filterAnd;
+				this.notifyAdapters();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
