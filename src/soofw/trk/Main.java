@@ -268,7 +268,7 @@ public class Main extends FragmentActivity {
 
 		deleteQueue.add(item);
 		anim.setAnimationListener(al);
-		anim.setDuration(200);
+		anim.setDuration(100);
 		view.startAnimation(anim);
 	}
 }

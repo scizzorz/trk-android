@@ -162,7 +162,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								endX = 0;
 								endAlpha = 1;
 							}
-							long duration = (int)((1 - fractionCovered) * 500);
+							long duration = (int)((1 - fractionCovered) * 250);
 							((ListView)parent).setEnabled(false);
 							AnimatorListener al = new AnimatorListener() {
 								@Override
