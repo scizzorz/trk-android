@@ -70,18 +70,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 			long downTime;
 			int swipeSlop = -1;
 			int tapTime = -1;
-			int longTime = -1;
 			int feedbackTime = -1;
-			Timer longTimer;
 			Timer tapTimer;
 			boolean swiping = false;
 			boolean canSwipe = true;
 
-			private void cancelLongPress() {
-				if(longTimer != null) {
-					longTimer.cancel();
-				}
-			}
 			private void cancelTap() {
 				if(tapTimer != null) {
 					tapTimer.cancel();
@@ -98,12 +91,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 
 			@Override
 			public boolean onTouch(final View view, final MotionEvent event) {
-				if(swipeSlop < 0 || tapTime < 0 || longTime < 0) {
+				if(swipeSlop < 0 || tapTime < 0) {
 					ViewConfiguration vc = ViewConfiguration.get(TaskAdapter.this.context);
 					swipeSlop = vc.getScaledTouchSlop();
 					tapTime = vc.getTapTimeout();
 					feedbackTime = tapTime / 2;
-					longTime = vc.getLongPressTimeout();
 				}
 
 				float x, dx, dxa;
@@ -111,7 +103,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					case MotionEvent.ACTION_DOWN:
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
-						cancelLongPress();
 						canSwipe = true;
 
 						tapTimer = new Timer();
@@ -122,21 +113,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							}
 						}, feedbackTime);
 
-						longTimer = new Timer();
-						longTimer.schedule(new TimerTask() {
-							@Override
-							public void run() {
-								canSwipe = false;
-								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-							}
-						}, longTime);
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
 						view.setAlpha(1);
 						view.setTranslationX(0);
 						cancelTap();
-						cancelLongPress();
 						setBackground(view, R.color.task_item_bg);
 						break;
 
@@ -150,7 +132,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								swiping = true;
 								((ListView)parent).requestDisallowInterceptTouchEvent(true);
 								cancelTap();
-								cancelLongPress();
 								setBackground(view, R.color.task_item_bg);
 							}
 						}
@@ -181,7 +162,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								endX = 0;
 								endAlpha = 1;
 							}
-							long duration = (int)((1 - fractionCovered) * 500);
+							long duration = (int)((1 - fractionCovered) * 250);
 							((ListView)parent).setEnabled(false);
 							AnimatorListener al = new AnimatorListener() {
 								@Override
@@ -230,9 +211,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								}
 								TaskAdapter.this.notifyDataSetChanged();
 							}
-						}
-						if(elapsed <= longTime) {
-							cancelLongPress();
 						}
 						break;
 
@@ -341,11 +319,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							bg_id = R.color.hash_bg;
 							break;
 						case '!':
-							if(tags[i].equals("!0")) {
-								bg_id = R.color.lowpriority_bg;
-							} else {
-								bg_id = R.color.priority_bg;
-							}
+							bg_id = R.color.priority_bg;
 							break;
 						default:
 							if(temp.calendar.before(now)) {

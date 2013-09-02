@@ -48,11 +48,7 @@ class TagAdapter extends ArrayAdapter<String> {
 				fg_id = R.color.hash_fg;
 				break;
 			case '!':
-				if(tag.equals("!0")) {
-					fg_id = R.color.lowpriority_fg;
-				} else {
-					fg_id = R.color.priority_fg;
-				}
+				fg_id = R.color.priority_fg;
 				break;
 			default:
 				Calendar c = Task.matcherToCalendar(Task.re_date.matcher(tag));

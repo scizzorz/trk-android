@@ -11,63 +11,43 @@
 		android:layout_height="match_parent"
 		android:layout_width="match_parent"
 		android:orientation="vertical"
+		android:padding="8dp"
 		>
-		<RelativeLayout
+		<FrameLayout
 			android:layout_height="wrap_content"
+			android:layout_marginBottom="4dp"
+			android:layout_marginLeft="0dp"
+			android:layout_marginRight="0dp"
+			android:layout_marginTop="0dp"
 			android:layout_width="match_parent"
-			android:orientation="horizontal"
 			>
-			<FrameLayout
-				android:layout_height="40dp"
-				android:layout_marginLeft="8dp"
-				android:layout_marginRight="0dp"
-				android:layout_marginTop="8dp"
-				android:layout_marginBottom="8dp"
-				android:layout_toLeftOf="@+id/omnibar_add"
+			<MultiAutoCompleteTextView
+				android:id="@+id/omnibar"
+				android:hint="@string/omnibar_hint"
+				android:imeOptions="actionSend"
+				android:inputType="text"
+				android:layout_height="match_parent"
 				android:layout_width="match_parent"
-				>
-				<MultiAutoCompleteTextView
-					android:id="@+id/omnibar"
-					android:hint="@string/omnibar_hint"
-					android:imeOptions="actionSend"
-					android:inputType="text"
-					android:layout_height="match_parent"
-					android:layout_width="match_parent"
-					/>
-				<Button
-					android:id="@+id/omnibar_clear"
-					android:background="@drawable/omnibar_clear"
-					android:layout_gravity="right|center_vertical"
-					android:layout_height="22dp"
-					android:layout_marginRight="8dp"
-					android:layout_width="22dp"
-					android:onClick="clearSearch"
-					android:visibility="gone"
-					/>
-			</FrameLayout>
-			<ImageButton
-				android:id="@+id/omnibar_add"
-				android:background="@drawable/omnibar_add_bg"
-				android:layout_alignParentRight="true"
-				android:layout_height="32dp"
-				android:layout_marginLeft="4dp"
-				android:layout_marginRight="12dp"
-				android:layout_marginTop="12dp"
-				android:layout_marginBottom="12dp"
-				android:layout_width="32dp"
-				android:onClick="addItem"
-				android:src="@android:drawable/ic_menu_add"
-				style="?android:attr/borderlessButtonStyle"
 				/>
-		</RelativeLayout>
+			<Button
+				android:id="@+id/omnibar_clear"
+				android:background="@drawable/omnibar_clear"
+				android:layout_gravity="right|center_vertical"
+				android:layout_height="22dp"
+				android:layout_marginRight="8dp"
+				android:layout_width="22dp"
+				android:onClick="clearSearch"
+				android:visibility="gone"
+				/>
+		</FrameLayout>
 		<soofw.util.FlowLayout
 			android:id="@+id/filter_layout"
 			android:background="@android:color/transparent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="0dp"
-			android:layout_marginLeft="10dp"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
+			android:layout_marginBottom="8dp"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="2dp"
+			android:layout_marginTop="0dp"
 			android:layout_width="match_parent"
 			android:orientation="horizontal"
 			android:padding="0dp"
@@ -82,7 +62,7 @@
 			android:divider="@color/task_item_divider"
 			android:dividerHeight="2dp"
 			android:layout_height="match_parent"
-			android:layout_margin="8dp"
+			android:layout_margin="0dp"
 			android:layout_width="match_parent"
 			android:paddingLeft="2dp"
 			/>

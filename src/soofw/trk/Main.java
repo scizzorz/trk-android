@@ -12,6 +12,9 @@ import android.view.HapticFeedbackConstants;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -102,6 +105,28 @@ public class Main extends FragmentActivity {
 		});
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = this.getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+			case R.id.omnibar_add:
+				this.addItem();
+				return true;
+			case R.id.filter_toggle:
+				this.list.filterAnd = !this.list.filterAnd;
+				this.notifyAdapters();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
 	void updateFilters() {
 		if(this.list.tagFilters.size() == 0) {
 			filterLayout.setVisibility(View.GONE);
@@ -138,11 +163,7 @@ public class Main extends FragmentActivity {
 						bg_id = R.color.hash_bg;
 						break;
 					case '!':
-						if(this.list.tagFilters.get(i).equals("!0")) {
-							bg_id = R.color.lowpriority_bg;
-						} else {
-							bg_id = R.color.priority_bg;
-						}
+						bg_id = R.color.priority_bg;
 						break;
 					default:
 						Calendar c = Task.matcherToCalendar(Task.re_date.matcher(this.list.tagFilters.get(i)));
@@ -199,9 +220,6 @@ public class Main extends FragmentActivity {
 	}
 
 
-	public void addItem(View view) {
-		addItem();
-	}
 	void addItem() {
 		String source = omnibar.getText().toString();
 		if(!source.isEmpty()) {
@@ -272,7 +290,7 @@ public class Main extends FragmentActivity {
 
 		deleteQueue.add(item);
 		anim.setAnimationListener(al);
-		anim.setDuration(200);
+		anim.setDuration(100);
 		view.startAnimation(anim);
 	}
 }

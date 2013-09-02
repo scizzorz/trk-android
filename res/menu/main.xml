@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/filter_toggle"
+		android:icon="@android:drawable/ic_menu_help"
+		android:title="@string/filter_toggle"
+		android:showAsAction="ifRoom"/>
+	<item android:id="@+id/omnibar_add"
+		android:icon="@android:drawable/ic_menu_add"
+		android:title="@string/omnibar_add"
+		android:showAsAction="ifRoom"/>
+</menu>
