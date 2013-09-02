@@ -74,7 +74,6 @@ class TaskList {
 		this.add("Tag by anything #life");
 		this.add("Tag by everything +shopping @store #life");
 		this.add("Tag by priority !1");
-		this.add("Or tag by low priority !0");
 		this.add("Use subtags +work/tpsreports @office/garbage");
 		this.add("Type to search or add");
 		this.add("Long press to edit");

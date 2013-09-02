@@ -138,11 +138,7 @@ public class Main extends FragmentActivity {
 						bg_id = R.color.hash_bg;
 						break;
 					case '!':
-						if(this.list.tagFilters.get(i).equals("!0")) {
-							bg_id = R.color.lowpriority_bg;
-						} else {
-							bg_id = R.color.priority_bg;
-						}
+						bg_id = R.color.priority_bg;
 						break;
 					default:
 						Calendar c = Task.matcherToCalendar(Task.re_date.matcher(this.list.tagFilters.get(i)));

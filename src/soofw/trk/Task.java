@@ -10,7 +10,7 @@ class Task implements Comparable<Task> {
 	final static Pattern re_at       = Pattern.compile("(^|\\s)(\\@([\\w\\/]+))");
 	final static Pattern re_hash     = Pattern.compile("(^|\\s)(\\#([\\w\\/]+))");
 	final static Pattern re_plus     = Pattern.compile("(^|\\s)(\\+([\\w\\/]+))");
-	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!(\\d))");
+	final static Pattern re_priority = Pattern.compile("(^|\\s)(\\!([1-9]))");
 	final static Pattern re_date     = Pattern.compile("((\\d{1,2})/(\\d{1,2})(/(\\d{2}))*([@ ](\\d{1,2})(:(\\d{1,2}))*(am|pm)*)*)");
 	final static Pattern re_flags    = Pattern.compile("^([x*]+)\\s+");
 	final static int DONE  = 1 << 0;
@@ -54,9 +54,6 @@ class Task implements Comparable<Task> {
 		m = re_priority.matcher(this.source);
 		if(m.find()) {
 			this.priority = Integer.parseInt(m.group(2).substring(1));
-			if(this.priority == 0) { // !0 is actually -1 priority
-				this.priority  = -1;
-			}
 			this.tags.add(m.group(2));
 		}
 

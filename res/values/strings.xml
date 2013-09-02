@@ -11,8 +11,6 @@
 	<color name="hash_bg">#8FEFBF</color>
 	<color name="priority_fg">#EB4747</color>
 	<color name="priority_bg">#EF8F8F</color>
-	<color name="lowpriority_fg">#999999</color>
-	<color name="lowpriority_bg">#BFBFBF</color>
 
 	<color name="date_fg">#4799EB</color>
 	<color name="date_bg">#8FBFEF</color>
