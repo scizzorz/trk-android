@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">trk</string>
 	<string name="omnibar_hint">Search or add...</string>
+	<string name="omnibar_add">Add</string>
+	<string name="filter_toggle">Toggle AND/OR</string>
 
 	<color name="plus_fg">#EB9947</color>
 	<color name="plus_bg">#EFBF8F</color>
@@ -11,8 +13,6 @@
 	<color name="hash_bg">#8FEFBF</color>
 	<color name="priority_fg">#EB4747</color>
 	<color name="priority_bg">#EF8F8F</color>
-	<color name="lowpriority_fg">#999999</color>
-	<color name="lowpriority_bg">#BFBFBF</color>
 
 	<color name="date_fg">#4799EB</color>
 	<color name="date_bg">#8FBFEF</color>
@@ -20,6 +20,8 @@
 	<color name="date_overdue_bg">#EF8F8F</color>
 	<color name="date_soon_fg">#EBEB47</color>
 	<color name="date_soon_bg">#EFEF8F</color>
+
+	<color name="tag_fg">#222</color>
 
 	<color name="done">#999999</color>
 	<color name="not_done">#000000</color>

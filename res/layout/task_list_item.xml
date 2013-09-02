@@ -2,7 +2,7 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:flow="http://schemas.android.com/apk/res/soofw.trk"
-	android:id="@+id/layout"
+	android:id="@+id/content"
 	android:background="@color/task_item_bg"
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent"
@@ -29,11 +29,56 @@
 		android:id="@+id/tags"
 		android:background="@android:color/transparent"
 		android:layout_height="wrap_content"
-		android:layout_margin="0dp"
+		android:layout_marginLeft="0dp"
+		android:layout_marginRight="0dp"
+		android:layout_marginTop="4dp"
+		android:layout_marginBottom="0dp"
 		android:layout_width="match_parent"
 		android:orientation="horizontal"
 		android:padding="0dp"
 		flow:horizontalSpacing="4dp"
 		flow:verticalSpacing="4dp"
 		/>
+	<LinearLayout
+		android:id="@+id/menu"
+		android:background="@android:color/transparent"
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		android:padding="4dp"
+		>
+		<ImageButton
+			android:id="@+id/menu_search"
+			android:layout_height="32dp"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:src="@drawable/search"
+			style="?android:attr/borderlessButtonStyle"
+			/>
+		<ImageButton
+			android:id="@+id/menu_now"
+			android:layout_height="32dp"
+			android:layout_weight="1"
+			android:layout_width="0dp"
+			android:src="@drawable/now"
+			style="?android:attr/borderlessButtonStyle"
+			/>
+		<ImageButton
+			android:id="@+id/menu_tags"
+			android:layout_height="32dp"
+			android:layout_weight="1"
+			android:layout_width="0dp"
+			android:src="@drawable/tags"
+			style="?android:attr/borderlessButtonStyle"
+			/>
+		<ImageButton
+			android:id="@+id/menu_edit"
+			android:layout_height="32dp"
+			android:layout_weight="1"
+			android:layout_width="0dp"
+			android:src="@drawable/edit"
+			style="?android:attr/borderlessButtonStyle"
+			/>
+	</LinearLayout>
 </LinearLayout>

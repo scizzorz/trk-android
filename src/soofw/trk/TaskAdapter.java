@@ -13,9 +13,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -26,6 +26,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 	View view;
 	Main context;
 	ArrayList<Task> tasks;
+	Task expandedItem = null;
 
 	TaskAdapter(Context context, ArrayList<Task> tasks) {
 		super(context, R.layout.task_list_item, tasks);
@@ -51,28 +52,29 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		this.view.setAlpha(1);
 		this.view.setTranslationX(0);
 		this.view.setVisibility(View.VISIBLE);
+
 		if(this.view.getLayoutParams() != null) {
 			this.view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
 			this.view.requestLayout();
 		}
+
+		View menu = this.view.findViewById(R.id.menu);
+		ImageButton menu_now = (ImageButton)this.view.findViewById(R.id.menu_now);
+		View menu_edit = this.view.findViewById(R.id.menu_edit);
+		View menu_search = this.view.findViewById(R.id.menu_search);
+		View menu_tags = this.view.findViewById(R.id.menu_tags);
+
 		this.view.setOnTouchListener(new View.OnTouchListener() {
 			// https://www.youtube.com/watch?v=YCHNAi9kJI4&feature=player_embedded
 			float downX;
 			long downTime;
 			int swipeSlop = -1;
 			int tapTime = -1;
-			int longTime = -1;
 			int feedbackTime = -1;
-			Timer longTimer;
 			Timer tapTimer;
 			boolean swiping = false;
 			boolean canSwipe = true;
 
-			private void cancelLongPress() {
-				if(longTimer != null) {
-					longTimer.cancel();
-				}
-			}
 			private void cancelTap() {
 				if(tapTimer != null) {
 					tapTimer.cancel();
@@ -89,12 +91,11 @@ class TaskAdapter extends ArrayAdapter<Task> {
 
 			@Override
 			public boolean onTouch(final View view, final MotionEvent event) {
-				if(swipeSlop < 0 || tapTime < 0 || longTime < 0) {
+				if(swipeSlop < 0 || tapTime < 0) {
 					ViewConfiguration vc = ViewConfiguration.get(TaskAdapter.this.context);
 					swipeSlop = vc.getScaledTouchSlop();
 					tapTime = vc.getTapTimeout();
 					feedbackTime = tapTime / 2;
-					longTime = vc.getLongPressTimeout();
 				}
 
 				float x, dx, dxa;
@@ -102,7 +103,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					case MotionEvent.ACTION_DOWN:
 						downX = event.getX();
 						downTime = System.currentTimeMillis();
-						cancelLongPress();
 						canSwipe = true;
 
 						tapTimer = new Timer();
@@ -113,23 +113,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							}
 						}, feedbackTime);
 
-						longTimer = new Timer();
-						longTimer.schedule(new TimerTask() {
-							@Override
-							public void run() {
-								canSwipe = false;
-								view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-								new ActionDialogFragment(temp)
-									.show(TaskAdapter.this.context.getSupportFragmentManager(), "tag?");
-							}
-						}, longTime);
 						break;
 
 					case MotionEvent.ACTION_CANCEL:
 						view.setAlpha(1);
 						view.setTranslationX(0);
 						cancelTap();
-						cancelLongPress();
 						setBackground(view, R.color.task_item_bg);
 						break;
 
@@ -143,7 +132,6 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								swiping = true;
 								((ListView)parent).requestDisallowInterceptTouchEvent(true);
 								cancelTap();
-								cancelLongPress();
 								setBackground(view, R.color.task_item_bg);
 							}
 						}
@@ -174,7 +162,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								endX = 0;
 								endAlpha = 1;
 							}
-							long duration = (int)((1 - fractionCovered) * 500);
+							long duration = (int)((1 - fractionCovered) * 250);
 							((ListView)parent).setEnabled(false);
 							AnimatorListener al = new AnimatorListener() {
 								@Override
@@ -210,20 +198,63 @@ class TaskAdapter extends ArrayAdapter<Task> {
 								setBackground(view, R.color.task_item_bg);
 							}
 
-							temp.toggleFlag(Task.DONE);
-							TaskAdapter.this.notifyDataSetChanged();
-							TaskAdapter.this.context.list.write();
-						}
-						if(elapsed <= longTime) {
-							cancelLongPress();
+							x = event.getX() + view.getTranslationX();
+							if(x >= view.getWidth() * 3 / 4) {
+								temp.toggleFlag(Task.DONE);
+								TaskAdapter.this.notifyDataSetChanged();
+								TaskAdapter.this.context.list.write();
+							} else {
+								if(TaskAdapter.this.expandedItem == temp) {
+									TaskAdapter.this.expandedItem = null;
+								} else {
+									TaskAdapter.this.expandedItem = temp;
+								}
+								TaskAdapter.this.notifyDataSetChanged();
+							}
 						}
 						break;
+
 					default:
 						return false;
 				}
 				return true;
 			}
 		});
+		menu_search.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				new FilterDialogFragment(temp)
+					.show(TaskAdapter.this.context.getSupportFragmentManager(), "filter");
+			}
+		});
+		menu_edit.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				new EditDialogFragment(temp)
+					.show(TaskAdapter.this.context.getSupportFragmentManager(), "edit");
+			}
+		});
+		menu_now.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				temp.toggleFlag(Task.NOW);
+				TaskAdapter.this.context.list.update();
+				TaskAdapter.this.context.list.write();
+				TaskAdapter.this.context.notifyAdapters();
+			}
+		});
+
+		if(temp.hasTags()) {
+			menu_search.setAlpha(1);
+			menu_search.setEnabled(true);
+		} else {
+			menu_search.setAlpha(0.5f);
+			menu_search.setEnabled(false);
+		}
+
+		menu_tags.setAlpha(0.5f);
+		menu_tags.setEnabled(false);
+
 
 		FlowLayout tags_layout = (FlowLayout)view.findViewById(R.id.tags);
 		CheckedTextView text = (CheckedTextView)view.findViewById(R.id.text);
@@ -231,27 +262,39 @@ class TaskAdapter extends ArrayAdapter<Task> {
 		text.setText(label);
 		((ListView)parent).setItemChecked(position, temp.getFlag(Task.DONE));
 		text.setChecked(temp.getFlag(Task.DONE));
+
 		if(temp.getFlag(Task.DONE)) {
 			text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 		} else {
 			text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 		}
+
 		if(temp.getFlag(Task.NOW)) {
+			menu_now.setImageResource(R.drawable.now_on);
 			text.setTypeface(null, Typeface.BOLD);
 		} else {
+			menu_now.setImageResource(R.drawable.now);
 			text.setTypeface(null, Typeface.NORMAL);
 		}
+
 		if(temp.getFlag(Task.DONE) || temp.getFlag(Task.LATER)) {
 			text.setTextColor(this.context.getResources().getColor(R.color.done));
 		} else {
 			text.setTextColor(this.context.getResources().getColor(R.color.not_done));
 		}
 
+		int visibility = View.GONE;
+		if(this.expandedItem == temp) {
+			visibility = View.VISIBLE;
+		}
+		menu.setVisibility(visibility);
+
 
 		if(tags.length == 0) {
 			tags_layout.setVisibility(View.GONE);
 		} else {
 			tags_layout.setVisibility(View.VISIBLE);
+
 			for(int i = 0; i < tags.length || i < tags_layout.getChildCount(); i++) {
 				if(i < tags.length) {
 					TextView tag;
@@ -276,11 +319,7 @@ class TaskAdapter extends ArrayAdapter<Task> {
 							bg_id = R.color.hash_bg;
 							break;
 						case '!':
-							if(tags[i].equals("!0")) {
-								bg_id = R.color.lowpriority_bg;
-							} else {
-								bg_id = R.color.priority_bg;
-							}
+							bg_id = R.color.priority_bg;
 							break;
 						default:
 							if(temp.calendar.before(now)) {
@@ -293,6 +332,12 @@ class TaskAdapter extends ArrayAdapter<Task> {
 					}
 
 					tag.setBackgroundColor(this.context.getResources().getColor(bg_id));
+
+					int height = 4; // FIXME
+					if(this.expandedItem == temp) {
+						height = tag.getLineHeight() + 12;
+					}
+					tag.setHeight(height);
 				} else {
 					tags_layout.getChildAt(i).setVisibility(View.GONE);
 				}

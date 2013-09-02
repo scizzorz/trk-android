@@ -10,14 +10,11 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import java.util.ArrayList;
 
-class ActionDialogFragment extends DialogFragment {
-	final static int EDIT = 0;
-	final static int NOW = 1;
-
+class FilterDialogFragment extends DialogFragment {
 	Main context;
 	Task task;
 
-	ActionDialogFragment(Task task) {
+	FilterDialogFragment(Task task) {
 		this.task = task;
 	}
 
@@ -54,29 +51,11 @@ class ActionDialogFragment extends DialogFragment {
 		final String[] tags = new String[taglets.size()];
 		taglets.toArray(tags);
 
-		String[] actions = new String[tags.length + 2];
-		actions[0] = "Edit";
-		actions[1] = "Mark as current";
-		if(task.getFlag(Task.NOW)) {
-			actions[1] = "Mark as not current";
-		}
-		System.arraycopy(tags, 0, actions, 2, tags.length);
-
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-		builder.setItems(actions, new DialogInterface.OnClickListener() {
+		builder.setItems(tags, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if(which == ActionDialogFragment.EDIT) {
-					new EditDialogFragment(ActionDialogFragment.this.task)
-						.show(ActionDialogFragment.this.context.getSupportFragmentManager(), "tag!");
-				} else if(which == ActionDialogFragment.NOW) {
-					ActionDialogFragment.this.task.toggleFlag(Task.NOW);
-					ActionDialogFragment.this.context.list.update();
-					ActionDialogFragment.this.context.list.write();
-					ActionDialogFragment.this.context.notifyAdapters();
-				} else {
-					ActionDialogFragment.this.context.addFilter(tags[which - 2]);
-				}
+				FilterDialogFragment.this.context.addFilter(tags[which]);
 			}
 		});
 
